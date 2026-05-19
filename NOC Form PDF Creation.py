@@ -997,23 +997,29 @@ def generate_pdf():
 
     
  
-# --- Accessible Header (Fix for Acrobat Auto-Tagging) ---
-
-# Add logo first (aligned right)
+ # Header — H1 title block
+    title_block = [
+        Paragraph("California Energy Commission", label_style),
+        Paragraph("Notice of Completion &amp; Environmental Document Transmittal", title_style),
+    ]
     if os.path.exists(LOGO_PATH):
         logo = Image(LOGO_PATH, width=0.85*inch, height=0.85*inch)
-        logo.hAlign = 'RIGHT'
-        story.append(logo)
+        header_table = Table([[title_block, logo]], colWidths=[5.5*inch, 1.0*inch])
+        header_table.setStyle(TableStyle([
+            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+            ("ALIGN",  (1, 0), (1, 0),   "RIGHT"),
+            ("LEFTPADDING",  (0, 0), (-1, -1), 0),
+            ("RIGHTPADDING", (0, 0), (-1, -1), 0),
+        ]))
+        story.append(header_table)
+    else:
+        for p in title_block:
+            story.append(p)
 
-# Main heading OUTSIDE any table → avoids Acrobat nesting errors
-        story.append(Paragraph("California Energy Commission", label_style))
-        story.append(Paragraph("Notice of Completion & Environmental Document Transmittal", title_style))
+    story.append(HRFlowable(width="100%", thickness=2, color=colors.HexColor("#003366")))
+    story.append(Spacer(1, 8))
 
-        story.append(HRFlowable(width="100%", thickness=2, color=colors.HexColor("#003366")))
-        story.append(Spacer(1, 8))
-
-
-        add_field(story, "SCH Number", field("SCH Number", sch_number))
+    add_field(story, "SCH Number", field("SCH Number", sch_number))
 
     # Overview
     add_heading(story, "Overview")
