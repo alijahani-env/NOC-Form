@@ -1013,9 +1013,7 @@ story.append(HRFlowable(width="100%", thickness=2, color=colors.HexColor("#00336
 story.append(Spacer(1, 8))
 
 
-    story.append(HRFlowable(width="100%", thickness=2, color=colors.HexColor("#003366")))
-    story.append(Spacer(1, 8))
-
+   
     add_field(story, "SCH Number", field("SCH Number", sch_number))
 
     # Overview
