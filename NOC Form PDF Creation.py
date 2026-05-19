@@ -435,6 +435,9 @@ contact_options = [""] + list(CONTACTS.keys())
 contact_index = contact_options.index(preset_contact) if preset_contact in contact_options else 0
 contact_name = st.selectbox("Contact Person", options=contact_options, index=contact_index, key="contact_name")
 
+
+if contact_name in CONTACTS:
+    st.session_state.phone = CONTACTS[contact_name]
 phone_number = st.text_input(
     "Phone",
     value=preset_val(preset, "phone"),
