@@ -957,6 +957,7 @@ def generate_pdf():
         spaceAfter=4,
         textColor=colors.HexColor("#003366"),
         outlineLevel=0,
+        xmlTag="H1",
     )
     # H2 — section headings (explicit PDF structure tag via bulletText trick)
     heading_style = ParagraphStyle(
