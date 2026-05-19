@@ -1000,20 +1000,20 @@ def generate_pdf():
 # --- Accessible Header (Fix for Acrobat Auto-Tagging) ---
 
 # Add logo first (aligned right)
-if os.path.exists(LOGO_PATH):
-    logo = Image(LOGO_PATH, width=0.85*inch, height=0.85*inch)
-    logo.hAlign = 'RIGHT'
-    story.append(logo)
+    if os.path.exists(LOGO_PATH):
+        logo = Image(LOGO_PATH, width=0.85*inch, height=0.85*inch)
+        logo.hAlign = 'RIGHT'
+        story.append(logo)
 
 # Main heading OUTSIDE any table → avoids Acrobat nesting errors
-    story.append(Paragraph("California Energy Commission", label_style))
-    story.append(Paragraph("Notice of Completion & Environmental Document Transmittal", title_style))
+        story.append(Paragraph("California Energy Commission", label_style))
+        story.append(Paragraph("Notice of Completion & Environmental Document Transmittal", title_style))
 
-    story.append(HRFlowable(width="100%", thickness=2, color=colors.HexColor("#003366")))
-    story.append(Spacer(1, 8))
+        story.append(HRFlowable(width="100%", thickness=2, color=colors.HexColor("#003366")))
+        story.append(Spacer(1, 8))
 
 
-    add_field(story, "SCH Number", field("SCH Number", sch_number))
+        add_field(story, "SCH Number", field("SCH Number", sch_number))
 
     # Overview
     add_heading(story, "Overview")
