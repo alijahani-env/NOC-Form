@@ -950,30 +950,23 @@ def generate_pdf():
     styles = getSampleStyleSheet()
 
     # H1 — document title
-            
     title_style = ParagraphStyle(
         "FormTitle",
         parent=styles["Heading1"],
-        fontSize=18,            # much larger (important!)
-        leading=22,             # proper spacing
-        spaceBefore=12,
-        spaceAfter=6,
+        fontSize=14,
+        spaceAfter=4,
         textColor=colors.HexColor("#003366"),
-        alignment=TA_LEFT,
-        xmlTag="H1",
-
+        outlineLevel=0,
     )
     # H2 — section headings (explicit PDF structure tag via bulletText trick)
-           
     heading_style = ParagraphStyle(
         "SectionHeading",
         parent=styles["Heading2"],
-        fontSize=12,
-        leading=14,
-        spaceBefore=10,
+        fontSize=11,
+        spaceBefore=14,
         spaceAfter=4,
         textColor=colors.HexColor("#003366"),
-
+        outlineLevel=1,
     )
     label_style = ParagraphStyle(
         "Label", parent=styles["Normal"],
