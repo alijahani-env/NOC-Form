@@ -139,6 +139,13 @@ def parse_date_value(value):
 def load_presets():
     import pandas as pd
     base_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    st.write("DEBUG: BASE DIR =", base_dir)
+    try:
+        st.write("DEBUG: FILES IN BASE DIR =", os.listdir(base_dir))
+    except Exception as e:
+        st.write("DEBUG ERROR listing files:", e)
+        
     candidate_paths = [os.path.join(base_dir, "project_data.ods"), os.path.join(base_dir, "project_data(5).ods")]
     candidate_paths.extend(
         os.path.join(base_dir, name)
