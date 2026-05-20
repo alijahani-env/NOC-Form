@@ -726,49 +726,46 @@ st.subheader("Project Issues Discussed in Document")
 
 c1, c2, c3, c4 = st.columns(4)
 with c1:
-    issue_aesthetic_visual = st.checkbox("Aesthetic/Visual", value=preset_bool(preset, "issue_aesthetic_visual", True), key="issue_aesthetic_visual")
-    issue_agricultural_land = st.checkbox("Agricultural Land", value=preset_bool(preset, "issue_agricultural_land", True), key="issue_agricultural_land")
+    issue_aesthetic = st.checkbox("Aesthetic", value=preset_bool(preset, "issue_aesthetic", True), key="issue_aesthetic")
+    issue_agricultural_land = st.checkbox("Agriculture and Forestry Resources", value=preset_bool(preset, "issue_agricultural_land", True), key="issue_agricultural_land")
     issue_air_quality = st.checkbox("Air Quality", value=preset_bool(preset, "issue_air_quality", True), key="issue_air_quality")
-    issue_archeological_historical = st.checkbox("Archeological/Historical", value=preset_bool(preset, "issue_archeological_historical", True), key="issue_archeological_historical")
     issue_biological_resources = st.checkbox("Biological Resources", value=preset_bool(preset, "issue_biological_resources", True), key="issue_biological_resources")
     issue_coastal_zone = st.checkbox("Coastal Zone", value=preset_bool(preset, "issue_coastal_zone", False), key="issue_coastal_zone")
+    issue_Cultural_Resources = st.checkbox("Cultural Resources", value=preset_bool(preset, "issue_Cultural_Resources", True), key="issue_Cultural_Resources")
     issue_cumulative_effects = st.checkbox("Cumulative Effects", value=preset_bool(preset, "issue_cumulative_effects", True), key="issue_cumulative_effects")
     issue_drainage_absorption = st.checkbox("Drainage/Absorption", value=preset_bool(preset, "issue_drainage_absorption", True), key="issue_drainage_absorption")
     issue_economic_jobs = st.checkbox("Economic/Jobs", value=preset_bool(preset, "issue_economic_jobs", True), key="issue_economic_jobs")
 with c2:
     issue_energy = st.checkbox("Energy", value=preset_bool(preset, "issue_energy", True), key="issue_energy")
-    issue_fiscal = st.checkbox("Fiscal", value=preset_bool(preset, "issue_fiscal", False), key="issue_fiscal")
+    issue_fiscal = st.checkbox("Fiscal Impacts", value=preset_bool(preset, "issue_fiscal", False), key="issue_fiscal")
     issue_flood_plain_flooding = st.checkbox("Flood Plain/Flooding", value=preset_bool(preset, "issue_flood_plain_flooding", True), key="issue_flood_plain_flooding")
-    issue_forest_land_fire_hazard = st.checkbox("Forest Land/Fire Hazard", value=preset_bool(preset, "issue_forest_land_fire_hazard", True), key="issue_forest_land_fire_hazard")
-    issue_geologic_seismic = st.checkbox("Geologic/Seismic", value=preset_bool(preset, "issue_geologic_seismic", True), key="issue_geologic_seismic")
+    issue_geology_soils = st.checkbox("Geology/Soils", value=preset_bool(preset, "issue_geology_soils", True), key="issue_geology_soils")
     issue_greenhouse_gas_emissions = st.checkbox("Greenhouse Gas Emissions", value=preset_bool(preset, "issue_greenhouse_gas_emissions", True), key="issue_greenhouse_gas_emissions")
     issue_growth_inducement = st.checkbox("Growth Inducement", value=preset_bool(preset, "issue_growth_inducement", False), key="issue_growth_inducement")
-    issue_land_use = st.checkbox("Land Use", value=preset_bool(preset, "issue_land_use", True), key="issue_land_use")
-    issue_minerals = st.checkbox("Minerals", value=preset_bool(preset, "issue_minerals", True), key="issue_minerals")
-with c3:
+    issue_Hazards_Hazardous_Materials = st.checkbox("Forest Hazards & Hazardous Materials", value=preset_bool(preset, "issue_Hazards_Hazardous_Materials", True), key="issue_Hazards_Hazardous_Materials")
+    issue_Hydrology_Water_Quality = st.checkbox("Hydrology/Water Quality", value=preset_bool(preset, "issue_Hydrology_Water_Quality", True), key="issue_Hydrology_Water_Quality")
+    issue_land_use_Planning = st.checkbox("Land Use Planning", value=preset_bool(preset, "issue_land_use_Planning", True), key="issue_land_use_Planning")
+    
+with c3:   
+    issue_Mandatory_Findings_of_Significance = st.checkbox("Mandatory Findings of Significance", value=preset_bool(preset, "issue_Mandatory_Findings_of_Significance", True), key="issue_Mandatory_Findings_of_Significance")
+    issue_mineral_resources = st.checkbox("Mineral Resources", value=preset_bool(preset, "issue_mineral_resources", True), key="issue_mineral_resources")
     issue_noise = st.checkbox("Noise", value=preset_bool(preset, "issue_noise", True), key="issue_noise")
-    issue_other = st.checkbox("Other", value=preset_bool(preset, "issue_other", False), key="issue_other")
-    issue_population_housing_balance = st.checkbox("Population/Housing Balance", value=preset_bool(preset, "issue_population_housing_balance", True), key="issue_population_housing_balance")
-    issue_public_services_facilities = st.checkbox("Public Services/Facilities", value=preset_bool(preset, "issue_public_services_facilities", True), key="issue_public_services_facilities")
-    issue_recreation_parks = st.checkbox("Recreation/Parks", value=preset_bool(preset, "issue_recreation_parks", True), key="issue_recreation_parks")
+    issue_population_housing_balance = st.checkbox("Population/Housing", value=preset_bool(preset, "issue_population_housing_balance", True), key="issue_population_housing_balance")
+    issue_public_services_facilities = st.checkbox("Public Services", value=preset_bool(preset, "issue_public_services_facilities", True), key="issue_public_services_facilities")
+    issue_recreation_parks = st.checkbox("Recreation", value=preset_bool(preset, "issue_recreation_parks", True), key="issue_recreation_parks")
     issue_schools_universities = st.checkbox("Schools/Universities", value=preset_bool(preset, "issue_schools_universities", False), key="issue_schools_universities")
-    issue_septic_systems = st.checkbox("Septic Systems", value=preset_bool(preset, "issue_septic_systems", False), key="issue_septic_systems")
+    issue_septic_systems = st.checkbox("Septic System", value=preset_bool(preset, "issue_septic_systems", False), key="issue_septic_systems")
     issue_sewer_capacity = st.checkbox("Sewer Capacity", value=preset_bool(preset, "issue_sewer_capacity", False), key="issue_sewer_capacity")
-    issue_soil_erosion_compaction_grading = st.checkbox("Soil Erosion/Compaction/Grading", value=preset_bool(preset, "issue_soil_erosion_compaction_grading", True), key="issue_soil_erosion_compaction_grading")
+    
 with c4:
+    
     issue_solid_waste = st.checkbox("Solid Waste", value=preset_bool(preset, "issue_solid_waste", True), key="issue_solid_waste")
-    issue_toxic_hazardous = st.checkbox("Toxic/Hazardous", value=preset_bool(preset, "issue_toxic_hazardous", True), key="issue_toxic_hazardous")
-    issue_traffic_circulation = st.checkbox("Traffic/Circulation", value=preset_bool(preset, "issue_traffic_circulation", True), key="issue_traffic_circulation")
+    issue_Transportation = st.checkbox("Transportation", value=preset_bool(preset, "issue_Transportation", True), key="issue_Transportation")
     issue_tribal_cultural_resources = st.checkbox("Tribal Cultural Resources", value=preset_bool(preset, "issue_tribal_cultural_resources", True), key="issue_tribal_cultural_resources")
+    issue_Utilities_Service_Systems = st.checkbox("Utilities/Service Systems", value=preset_bool(preset, "issue_Utilities_Service_Systems", True), key="issue_Utilities_Service_Systems")
     issue_vegetation = st.checkbox("Vegetation", value=preset_bool(preset, "issue_vegetation", False), key="issue_vegetation")
-    issue_water_quality = st.checkbox("Water Quality", value=preset_bool(preset, "issue_water_quality", True), key="issue_water_quality")
-    issue_water_supply_groundwater = st.checkbox("Water Supply/Groundwater", value=preset_bool(preset, "issue_water_supply_groundwater", True), key="issue_water_supply_groundwater")
     issue_wetland_riparian = st.checkbox("Wetland/Riparian", value=preset_bool(preset, "issue_wetland_riparian", True), key="issue_wetland_riparian")
-
-issue_other_text = ""
-if issue_other:
-    issue_other_text = st.text_input("Other Issue (specify)", placeholder="Describe other issue", value=preset_val(preset, "issue_other_text"), key="issue_other_text")
-
+    issue_Wildfire = st.checkbox("Wildfire", value=preset_bool(preset, "issue_Wildfire", True), key="issue_Wildfire")
 
 st.divider()
 
