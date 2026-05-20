@@ -135,10 +135,12 @@ def parse_date_value(value):
         return None
 
 
-@st.cache_data
+#@st.cache_data
 def load_presets():
     import pandas as pd
-    base_dir = os.path.dirname(os.path.abspath(__file__))
+    base_dir = os.getcwd()
+    
+      
     candidate_paths = [os.path.join(base_dir, "project_data.ods"), os.path.join(base_dir, "project_data(5).ods")]
     candidate_paths.extend(
         os.path.join(base_dir, name)
