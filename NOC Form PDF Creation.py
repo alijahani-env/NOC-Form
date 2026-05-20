@@ -135,7 +135,7 @@ def parse_date_value(value):
         return None
 
 
-@st.cache_data
+#@st.cache_data
 def load_presets():
     import pandas as pd
     base_dir = os.getcwd()
