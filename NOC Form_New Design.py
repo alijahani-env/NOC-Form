@@ -1180,7 +1180,7 @@ def generate_pdf():
         "Fiscal": issue_fiscal,
         "Flood Plain/Flooding": issue_flood_plain_flooding,
         "Forest Land/Fire Hazard": issue_Hazards_Hazardous_Materials,
-        "Geologic/Seismic": issue_geologic_seismic,
+        "Geologic/Seismic": issue_geology_soils,
         "Greenhouse Gas Emissions": issue_greenhouse_gas_emissions,
         "Growth Inducement": issue_growth_inducement,
         "Land Use": issue_land_use,
