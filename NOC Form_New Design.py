@@ -1198,7 +1198,7 @@ def generate_pdf():
         #"Traffic/Circulation": issue_traffic_circulation,
         "Tribal Cultural Resources": issue_tribal_cultural_resources,
         "Vegetation": issue_vegetation,
-        "Water Quality": issue_water_quality,
+        #"Water Quality": issue_water_quality,
         "Water Supply/Groundwater": issue_water_supply_groundwater,
         "Wetland/Riparian": issue_wetland_riparian,
     }
