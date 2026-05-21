@@ -1199,7 +1199,7 @@ def generate_pdf():
         "Tribal Cultural Resources": issue_tribal_cultural_resources,
         "Vegetation": issue_vegetation,
         #"Water Quality": issue_water_quality,
-        "Water Supply/Groundwater": issue_water_supply_groundwater,
+        #"Water Supply/Groundwater": issue_water_supply_groundwater,
         "Wetland/Riparian": issue_wetland_riparian,
     }
     if issue_other and issue_other_text.strip():
