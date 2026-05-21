@@ -1170,7 +1170,7 @@ def generate_pdf():
         "Aesthetic/Visual": issue_aesthetic,
         "Agricultural Land": issue_agricultural_land,
         "Air Quality": issue_air_quality,
-        "Archeological/Historical": issue_archeological_historical,
+        "Archeological/Historical": issue_Cultural_Resources,
         "Biological Resources": issue_biological_resources,
         "Coastal Zone": issue_coastal_zone,
         "Cumulative Effects": issue_cumulative_effects,
