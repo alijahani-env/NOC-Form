@@ -1167,7 +1167,7 @@ def generate_pdf():
 
     # Project Issues
     issues_checked = {
-        "Aesthetic/Visual": issue_aesthetic_visual,
+        "Aesthetic/Visual": issue_aesthetic,
         "Agricultural Land": issue_agricultural_land,
         "Air Quality": issue_air_quality,
         "Archeological/Historical": issue_archeological_historical,
