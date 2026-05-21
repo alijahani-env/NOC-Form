@@ -1195,7 +1195,7 @@ def generate_pdf():
         #"Soil Erosion/Compaction/Grading": issue_soil_erosion_compaction_grading,
         "Solid Waste": issue_solid_waste,
         #"Toxic/Hazardous": issue_toxic_hazardous,
-        "Traffic/Circulation": issue_traffic_circulation,
+        #"Traffic/Circulation": issue_traffic_circulation,
         "Tribal Cultural Resources": issue_tribal_cultural_resources,
         "Vegetation": issue_vegetation,
         "Water Quality": issue_water_quality,
