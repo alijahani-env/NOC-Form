@@ -1194,7 +1194,7 @@ def generate_pdf():
         "Sewer Capacity": issue_sewer_capacity,
         #"Soil Erosion/Compaction/Grading": issue_soil_erosion_compaction_grading,
         "Solid Waste": issue_solid_waste,
-        "Toxic/Hazardous": issue_toxic_hazardous,
+        #"Toxic/Hazardous": issue_toxic_hazardous,
         "Traffic/Circulation": issue_traffic_circulation,
         "Tribal Cultural Resources": issue_tribal_cultural_resources,
         "Vegetation": issue_vegetation,
