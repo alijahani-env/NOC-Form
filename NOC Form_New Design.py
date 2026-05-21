@@ -1183,7 +1183,7 @@ def generate_pdf():
         "Geologic/Seismic": issue_geology_soils,
         "Greenhouse Gas Emissions": issue_greenhouse_gas_emissions,
         "Growth Inducement": issue_growth_inducement,
-        "Land Use": issue_land_use,
+        "Land Use": issue_land_use_Planning,
         "Minerals": issue_minerals,
         "Noise": issue_noise,
         "Population/Housing Balance": issue_population_housing_balance,
