@@ -1184,7 +1184,7 @@ def generate_pdf():
         "Greenhouse Gas Emissions": issue_greenhouse_gas_emissions,
         "Growth Inducement": issue_growth_inducement,
         "Land Use": issue_land_use_Planning,
-        "Minerals": issue_minerals,
+        "Minerals": issue_mineral_resources,
         "Noise": issue_noise,
         "Population/Housing Balance": issue_population_housing_balance,
         "Public Services/Facilities": issue_public_services_facilities,
