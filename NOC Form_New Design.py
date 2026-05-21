@@ -1202,8 +1202,8 @@ def generate_pdf():
         #"Water Supply/Groundwater": issue_water_supply_groundwater,
         "Wetland/Riparian": issue_wetland_riparian,
     }
-    if issue_other and issue_other_text.strip():
-        issues_checked[f"Other: {issue_other_text.strip()}"] = True
+    #if issue_other and issue_other_text.strip():
+     #   issues_checked[f"Other: {issue_other_text.strip()}"] = True
     if any(issues_checked.values()):
         add_heading(story, "Project Issues Discussed in Document")
         story.append(HRFlowable(width="100%", thickness=0.5, color=colors.lightgrey))
