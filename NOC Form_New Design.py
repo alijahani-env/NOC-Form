@@ -1388,7 +1388,7 @@ def generate_pdf():
         NameObject("/SigFlags"): NumberObject(3),
     })
 
-      writer._root_object[NameObject("/AcroForm")] = acroform
+    writer._root_object[NameObject("/AcroForm")] = acroform
 
     signed_buffer = io.BytesIO()
     writer.write(signed_buffer)
