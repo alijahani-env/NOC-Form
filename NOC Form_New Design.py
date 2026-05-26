@@ -1345,6 +1345,7 @@ def generate_pdf():
     anchor = Spacer(0, 8)
     anchor._sig_anchor = True
     story.append(anchor)
+    
     sig_doc.build(story)
     buffer.seek(0)
 
@@ -1387,53 +1388,7 @@ def generate_pdf():
         NameObject("/SigFlags"): NumberObject(3),
     })
 
-    date_rect = [330, box_bottom, 500, box_top]  # adjust positioning
-
-    date_field = DictionaryObject({
-        NameObject("/Type"): NameObject("/Annot"),
-        NameObject("/Subtype"): NameObject("/Widget"),
-        NameObject("/FT"): NameObject("/Tx"),
-        NameObject("/T"): TextStringObject("SignatureDate"),
-        # Placeholder text
-        NameObject("/DV"): TextStringObject("Date"),
-        NameObject("/V"): TextStringObject("Date"),
-        NameObject("/RV"): TextStringObject("Date"),
-
-    # Make placeholder grey
-        NameObject("/DA"): TextStringObject("/Helv 10 Tf 0.5 g"),
-        # Transparent background + normal border
-        NameObject("/MK"): DictionaryObject({
-        NameObject("/BG"): ArrayObject([]),   # ← THIS FIXES INVISIBLE TEXT
-        NameObject("/BC"): ArrayObject([NumberObject(0), NumberObject(0), NumberObject(0)])
-    }),
-        # Force drawing ABOVE ReportLab content
-        NameObject("/AP"): DictionaryObject({
-        NameObject("/N"): writer._add_object(
-        DictionaryObject({
-                NameObject("/BBox"): ArrayObject([
-                NumberObject(0),
-                NumberObject(0),
-                NumberObject(date_rect[2] - date_rect[0]),
-                NumberObject(date_rect[3] - date_rect[1])
-                ]),
-                NameObject("/Subtype"): NameObject("/Form"),
-                NameObject("/Type"): NameObject("/XObject")
-            })
-        )
-    }),
-        
-        NameObject("/Rect"): ArrayObject([NumberObject(x) for x in date_rect]),
-        NameObject("/F"): NumberObject(4),
-        NameObject("/P"): target_page.indirect_reference,
-    })
-
-    date_obj = writer._add_object(date_field)
-
-    target_page["/Annots"].append(date_obj)
-    acroform["/Fields"].append(date_obj)
-
-
-    writer._root_object[NameObject("/AcroForm")] = acroform
+      writer._root_object[NameObject("/AcroForm")] = acroform
 
     signed_buffer = io.BytesIO()
     writer.write(signed_buffer)
