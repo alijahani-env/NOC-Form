@@ -1392,6 +1392,12 @@ def generate_pdf():
         NameObject("/Subtype"): NameObject("/Widget"),
         NameObject("/FT"): NameObject("/Tx"),
         NameObject("/T"): TextStringObject("SignatureDate"),
+        # Placeholder text
+        NameObject("/DV"): TextStringObject("Date"),
+        NameObject("/V"): TextStringObject("Date"),
+
+    # Make placeholder grey
+        NameObject("/DA"): TextStringObject("/Helv 10 Tf 0.5 g"),
         NameObject("/Rect"): ArrayObject([NumberObject(x) for x in date_rect]),
         NameObject("/F"): NumberObject(4),
         NameObject("/P"): target_page.indirect_reference,
