@@ -1383,6 +1383,25 @@ def generate_pdf():
         target_page[NameObject("/Annots")] = ArrayObject()
     target_page["/Annots"].append(sig_obj)
 
+# >>> INSERT DATE FIELD HERE <<<
+    date_rect = [330, box_bottom, 500, box_top]  # adjust position as needed
+
+    date_field = DictionaryObject({
+        NameObject("/Type"): NameObject("/Annot"),
+        NameObject("/Subtype"): NameObject("/Widget"),
+        NameObject("/FT"): NameObject("/Tx"),
+        NameObject("/T"): TextStringObject("SignatureDate"),
+        NameObject("/TU"): TextStringObject("Date Signed"),
+        NameObject("/Rect"): ArrayObject([NumberObject(x) for x in date_rect]),
+        NameObject("/F"): NumberObject(4),
+        NameObject("/P"): target_page.indirect_reference,
+    })
+
+    date_obj = writer._add_object(date_field)
+    target_page["/Annots"].append(date_obj)
+    acroform["/Fields"].append(date_obj)
+# <<< END OF INSERTION >>>
+
     acroform = DictionaryObject({
         NameObject("/Fields"):   ArrayObject([sig_obj]),
         NameObject("/SigFlags"): NumberObject(3),
