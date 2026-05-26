@@ -1398,15 +1398,9 @@ def generate_pdf():
 
     # Make placeholder grey
         NameObject("/DA"): TextStringObject("/Helv 10 Tf 0.5 g"),
-        # Border: 1pt black line
-        NameObject("/BS"): DictionaryObject({
-        NameObject("/W"): NumberObject(1),
-        NameObject("/S"): NameObject("/S")   # Solid border
-    }),
-
-    # Background: transparent (CHANGES EVERYTHING)
+        # Transparent background + normal border
         NameObject("/MK"): DictionaryObject({
-        NameObject("/BG"): ArrayObject([NumberObject(1), NumberObject(1), NumberObject(1)]),
+        NameObject("/BG"): ArrayObject([]),   # ← THIS FIXES INVISIBLE TEXT
         NameObject("/BC"): ArrayObject([NumberObject(0), NumberObject(0), NumberObject(0)])
     }),
         
