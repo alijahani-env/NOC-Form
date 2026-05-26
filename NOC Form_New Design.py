@@ -1337,6 +1337,10 @@ def generate_pdf():
 
     add_heading(story, "Signature of Lead Agency Representative")
     story.append(HRFlowable(width="100%", thickness=0.5, color=colors.lightgrey))
+     # Invisible zero-height spacer tagged as our anchor
+    anchor = Spacer(0, 8)
+    anchor._sig_anchor = True
+    story.append(anchor)
 # --- ADD THIS ---
     date_label_style = ParagraphStyle(
         "DateLabel",
@@ -1348,10 +1352,7 @@ def generate_pdf():
     story.append(Paragraph("Date", date_label_style))
     story.append(Spacer(1, 4))
 # --- END ADD THIS ---
-    # Invisible zero-height spacer tagged as our anchor
-    anchor = Spacer(0, 8)
-    anchor._sig_anchor = True
-    story.append(anchor)
+   
 
     sig_doc.build(story)
     buffer.seek(0)
