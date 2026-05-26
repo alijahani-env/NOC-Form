@@ -1384,8 +1384,7 @@ def generate_pdf():
         NameObject("/Fields"):   ArrayObject([sig_obj]),
         NameObject("/SigFlags"): NumberObject(3),
     })
-    writer._root_object[NameObject("/AcroForm")] = acroform
-###
+
     date_rect = [330, box_bottom, 500, box_top]  # adjust positioning
 
     date_field = DictionaryObject({
@@ -1402,7 +1401,10 @@ date_obj = writer._add_object(date_field)
 
 target_page["/Annots"].append(date_obj)
 acroform["/Fields"].append(date_obj)
-###
+
+
+    writer._root_object[NameObject("/AcroForm")] = acroform
+
     signed_buffer = io.BytesIO()
     writer.write(signed_buffer)
     signed_buffer.seek(0)
