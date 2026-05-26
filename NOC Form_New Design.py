@@ -1395,6 +1395,7 @@ def generate_pdf():
         # Placeholder text
         NameObject("/DV"): TextStringObject("Date"),
         NameObject("/V"): TextStringObject("Date"),
+        NameObject("/RV"): TextStringObject("Date"),
 
     # Make placeholder grey
         NameObject("/DA"): TextStringObject("/Helv 10 Tf 0.5 g"),
