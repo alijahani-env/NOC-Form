@@ -1398,6 +1398,18 @@ def generate_pdf():
 
     # Make placeholder grey
         NameObject("/DA"): TextStringObject("/Helv 10 Tf 0.5 g"),
+        # Border: 1pt black line
+        NameObject("/BS"): DictionaryObject({
+        NameObject("/W"): NumberObject(1),
+        NameObject("/S"): NameObject("/S")   # Solid border
+    }),
+
+    # Background: transparent (CHANGES EVERYTHING)
+        NameObject("/MK"): DictionaryObject({
+        NameObject("/BG"): ArrayObject([NumberObject(1), NumberObject(1), NumberObject(1)]),
+        NameObject("/BC"): ArrayObject([NumberObject(0), NumberObject(0), NumberObject(0)])
+    }),
+        
         NameObject("/Rect"): ArrayObject([NumberObject(x) for x in date_rect]),
         NameObject("/F"): NumberObject(4),
         NameObject("/P"): target_page.indirect_reference,
