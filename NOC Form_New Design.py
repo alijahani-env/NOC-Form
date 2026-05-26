@@ -1376,7 +1376,39 @@ def generate_pdf():
         NameObject("/F"):       NumberObject(4),
         NameObject("/P"):       target_page.indirect_reference,
     })
+# ---- Date Field Box (to the right of Signature) ----
 
+    date_box_left   = box_right + 12      # small spacing from signature box
+    date_box_right  = date_box_left + 150
+    date_box_top    = box_top
+    date_box_bottom = box_bottom
+
+    date_rect = [date_box_left, date_box_bottom, date_box_right, date_box_top]
+
+    date_field = DictionaryObject({
+        NameObject("/Type"):    NameObject("/Annot"),
+        NameObject("/Subtype"): NameObject("/Widget"),
+        NameObject("/FT"):      NameObject("/Tx"),  # Text field
+        NameObject("/T"):       TextStringObject("SignatureDate"),
+        NameObject("/TU"):      TextStringObject("Date Signed"),
+        NameObject("/Rect"):    ArrayObject([NumberObject(x) for x in date_rect]),
+        NameObject("/F"):       NumberObject(4),
+        NameObject("/DA"):      TextStringObject("/Helv 0 Tf 0 g"),  # default appearance
+        NameObject("/P"):       target_page.indirect_reference,
+    })
+
+    date_obj = writer._add_object(date_field)
+
+# Add to page annotations
+    target_page["/Annots"].append(date_obj)
+
+# Add BOTH fields to AcroForm
+    writer._root_object[NameObject("/AcroForm")] = DictionaryObject({
+        NameObject("/Fields"): ArrayObject([sig_obj, date_obj]),
+        NameObject("/SigFlags"): NumberObject(3),
+    })
+
+#---End
     sig_obj = writer._add_object(sig_field)
 
     if "/Annots" not in target_page:
