@@ -1340,27 +1340,27 @@ def generate_pdf():
      # Invisible zero-height spacer tagged as our anchor
     
 # --- ADD THIS ---
-    from reportlab.platypus import Table, TableStyle
+  #  from reportlab.platypus import Table, TableStyle
 
 # Two-column label row for Signature and Date
-    label_table = Table(
-    [
-        ["Signature", "Date"]
-    ],
-    colWidths=[200, 200]
-)
+#    label_table = Table(
+ #   [
+ #       ["Signature", "Date"]
+#    ],
+#    colWidths=[200, 200]
+#)
 
-    label_table.setStyle(
-    TableStyle([
-        ("TEXTCOLOR", (0, 0), (-1, -1), colors.grey),
-        ("FONTNAME", (0, 0), (-1, -1), "Helvetica"),
-        ("FONTSIZE", (0, 0), (-1, -1), 9),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 2)
-    ])
-)
+#    label_table.setStyle(
+ #   TableStyle([
+ #       ("TEXTCOLOR", (0, 0), (-1, -1), colors.grey),
+ #       ("FONTNAME", (0, 0), (-1, -1), "Helvetica"),
+  #      ("FONTSIZE", (0, 0), (-1, -1), 9),
+  #      ("BOTTOMPADDING", (0, 0), (-1, -1), 2)
+ #   ])
+#)
 
-    story.append(label_table)
-    story.append(Spacer(1, 4))
+#    story.append(label_table)
+#   story.append(Spacer(1, 4))
 
 # --- END ADD THIS ---
    
