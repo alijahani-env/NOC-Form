@@ -1397,8 +1397,11 @@ def generate_pdf():
         NameObject("/TU"): TextStringObject("Date"),
         NameObject("/Rect"): ArrayObject([NumberObject(v) for v in date_rect]),
         NameObject("/DA"): TextStringObject("/Helv 10 Tf 0 g"),
+        NameObject("/V"): TextStringObject("Date"),
+        NameObject("/DV"): TextStringObject("Date"),
         NameObject("/F"): NumberObject(4),
         NameObject("/P"): target_page.indirect_reference,
+        
     })
 
     date_obj = writer._add_object(date_field)
