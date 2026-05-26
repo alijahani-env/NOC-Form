@@ -1397,10 +1397,10 @@ def generate_pdf():
         NameObject("/P"): target_page.indirect_reference,
     })
 
-date_obj = writer._add_object(date_field)
+    date_obj = writer._add_object(date_field)
 
-target_page["/Annots"].append(date_obj)
-acroform["/Fields"].append(date_obj)
+    target_page["/Annots"].append(date_obj)
+    acroform["/Fields"].append(date_obj)
 
 
     writer._root_object[NameObject("/AcroForm")] = acroform
