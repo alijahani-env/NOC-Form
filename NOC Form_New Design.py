@@ -1376,67 +1376,14 @@ def generate_pdf():
         NameObject("/F"):       NumberObject(4),
         NameObject("/P"):       target_page.indirect_reference,
     })
-# ----start Date Field Box (to the right of Signature) ----
 
-    date_box_left   = box_right + 12      # small spacing from signature box
-    date_box_right  = date_box_left + 150
-    date_box_top    = box_top
-    date_box_bottom = box_bottom
-
-    date_rect = [date_box_left, date_box_bottom, date_box_right, date_box_top]
-
-    date_field = DictionaryObject({
-        NameObject("/Type"):    NameObject("/Annot"),
-        NameObject("/Subtype"): NameObject("/Widget"),
-        NameObject("/FT"):      NameObject("/Tx"),  # Text field
-        NameObject("/T"):       TextStringObject("SignatureDate"),
-        NameObject("/TU"):      TextStringObject("Date Signed"),
-        NameObject("/Rect"):    ArrayObject([NumberObject(x) for x in date_rect]),
-        NameObject("/F"):       NumberObject(4),
-        NameObject("/DA"):      TextStringObject("/Helv 0 Tf 0 g"),  # default appearance
-        NameObject("/P"):       target_page.indirect_reference,
-    })
-
-    date_obj = writer._add_object(date_field)
-
-# Add to page annotations
-    target_page["/Annots"].append(date_obj)
-
-# Add BOTH fields to AcroForm
-    writer._root_object[NameObject("/AcroForm")] = DictionaryObject({
-        NameObject("/Fields"): ArrayObject([sig_obj, date_obj]),
-        NameObject("/SigFlags"): NumberObject(3),
-    })
-
-#---End
     sig_obj = writer._add_object(sig_field)
 
-  #  if "/Annots" not in target_page:
-   #     target_page[NameObject("/Annots")] = ArrayObject()
-   # target_page["/Annots"].append(sig_obj)
+    if "/Annots" not in target_page:
+        target_page[NameObject("/Annots")] = ArrayObject()
+    target_page["/Annots"].append(sig_obj)
     
-# ---start  Ensure Annots is always a writable ArrayObject ---
-    annots = target_page.get("/Annots")
 
-    if annots is None:
-        annots = ArrayObject()
-    elif not isinstance(annots, ArrayObject):
-    # Some PDFs store this as an indirect reference or invalid structure
-        try:
-            annots = annots.get_object()
-        except:
-            annots = ArrayObject()
-
-        if not isinstance(annots, ArrayObject):
-            annots = ArrayObject()
-
-# append both fields safely
-    annots.append(sig_obj)
-    annots.append(date_obj)
-
-# write back
-    target_page[NameObject("/Annots")] = annots
-# End
 
     acroform = DictionaryObject({
         NameObject("/Fields"):   ArrayObject([sig_obj]),
