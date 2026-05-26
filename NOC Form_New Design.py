@@ -1383,39 +1383,12 @@ def generate_pdf():
         target_page[NameObject("/Annots")] = ArrayObject()
     target_page["/Annots"].append(sig_obj)
 
-   # acroform = DictionaryObject({
-    #    NameObject("/Fields"):   ArrayObject([sig_obj]),
-   #     NameObject("/SigFlags"): NumberObject(3),
     acroform = DictionaryObject({
-        NameObject("/Fields"):   ArrayObject([sig_obj, date_obj]),
+        NameObject("/Fields"):   ArrayObject([sig_obj]),
         NameObject("/SigFlags"): NumberObject(3),
-    })
-# ---- DATE FIELD (simple, safe, compatible with signature) ----
-    date_left   = 330      # adjust as needed
-    date_right  = 500
-    date_top    = box_top
-    date_bottom = box_bottom
-
-    date_rect = [date_left, date_bottom, date_right, date_top]
-
-    date_field = DictionaryObject({
-        NameObject("/Type"): NameObject("/Annot"),
-        NameObject("/Subtype"): NameObject("/Widget"),
-        NameObject("/FT"): NameObject("/Tx"),
-        NameObject("/T"): TextStringObject("DateField"),
-        NameObject("/V"): TextStringObject("Date"),           # initial value
-        NameObject("/DV"): TextStringObject("Date"),          # default value
-        NameObject("/DA"): TextStringObject("/Helv 10 Tf 0.5 g"),  # grey text
-        NameObject("/Rect"): ArrayObject([NumberObject(x) for x in date_rect]),
-        NameObject("/F"): NumberObject(4),
-        NameObject("/P"): target_page.indirect_reference,
+    
     })
 
-    date_obj = writer._add_object(date_field)
-
-    target_page["/Annots"].append(date_obj)
-
-# End
     writer._root_object[NameObject("/AcroForm")] = acroform
 
     signed_buffer = io.BytesIO()
