@@ -1406,12 +1406,12 @@ def generate_pdf():
         # Force drawing ABOVE ReportLab content
         NameObject("/AP"): DictionaryObject({
         NameObject("/N"): writer._add_object(
-            DictionaryObject({
+        DictionaryObject({
                 NameObject("/BBox"): ArrayObject([
-                    NumberObject(0),
-                    NumberObject(0),
-                    NumberObject(date_rect[2] - date_rect[0]),
-                    NumberObject(date_rect[3] - date_rect[1])
+                NumberObject(0),
+                NumberObject(0),
+                NumberObject(date_rect[2] - date_rect[0]),
+                NumberObject(date_rect[3] - date_rect[1])
                 ]),
                 NameObject("/Subtype"): NameObject("/Form"),
                 NameObject("/Type"): NameObject("/XObject")
