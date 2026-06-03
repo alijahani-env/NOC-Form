@@ -873,6 +873,13 @@ def set_plus_30():
     if start:
         raw_end = start + timedelta(days=30)
         st.session_state.date_end = next_business_day(raw_end)
+        
+def set_plus_60():
+    start = st.session_state.get("date_start")
+    if start:
+        raw_end = start + timedelta(days=60)
+        st.session_state.date_end = next_business_day(raw_end)
+
 
 if "date_start" not in st.session_state:
     st.session_state.date_start = None
@@ -894,6 +901,7 @@ with col_start:
 with col_end:
     st.markdown("**Ending Date**")
     st.button("+30 Days", key="btn_30", on_click=set_plus_30)
+    st.button("+60 Days", key="btn_60", on_click=set_plus_60)
     review_end = st.date_input(
         "Ending Date",
         value=st.session_state.date_end,
