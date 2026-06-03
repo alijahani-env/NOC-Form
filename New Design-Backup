@@ -1364,8 +1364,10 @@ def generate_pdf():
     box_top    = sig_y - 2
     box_bottom = box_top - 36
 
+   
     sig_rect = [box_left, box_bottom, box_right, box_top]
 
+   
     sig_field = DictionaryObject({
         NameObject("/Type"):    NameObject("/Annot"),
         NameObject("/Subtype"): NameObject("/Widget"),
@@ -1378,12 +1380,52 @@ def generate_pdf():
     })
 
     sig_obj = writer._add_object(sig_field)
+# --- start DATE FIELD next to signature ---
 
-    if "/Annots" not in target_page:
-        target_page[NameObject("/Annots")] = ArrayObject()
-    target_page["/Annots"].append(sig_obj)
+    date_left = box_right + 10
+    date_right = date_left + 120
+    date_top = box_top
+    date_bottom = box_bottom
+
+    date_rect = [date_left, date_bottom, date_right, date_top]
+
+    date_field = DictionaryObject({
+        NameObject("/Type"): NameObject("/Annot"),
+        NameObject("/Subtype"): NameObject("/Widget"),
+        NameObject("/FT"): NameObject("/Tx"),   # text field
+        NameObject("/T"): TextStringObject("SignatureDate"),
+        NameObject("/TU"): TextStringObject("Date"),
+        NameObject("/Rect"): ArrayObject([NumberObject(v) for v in date_rect]),
+        NameObject("/DA"): TextStringObject("/Helv 10 Tf 0 g"),
+        NameObject("/V"): TextStringObject("Date"),
+        NameObject("/DV"): TextStringObject("Date"),
+        NameObject("/F"): NumberObject(4),
+        NameObject("/P"): target_page.indirect_reference,
+        
+    })
+
+    date_obj = writer._add_object(date_field)
+
+# --- END
     
+  #  if "/Annots" not in target_page:
+  #      target_page[NameObject("/Annots")] = ArrayObject()
+ #   target_page["/Annots"].append(sig_obj)
+#start    
+    annots = target_page.get("/Annots")
+    if annots is None:
+        annots = ArrayObject()
+    else:
+        try:
+            annots = annots.get_object()
+        except:
+            annots = ArrayObject()
 
+    annots.append(sig_obj)
+    annots.append(date_obj)
+
+    target_page[NameObject("/Annots")] = annots  
+# END
 
     acroform = DictionaryObject({
         NameObject("/Fields"):   ArrayObject([sig_obj]),
