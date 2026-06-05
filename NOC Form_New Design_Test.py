@@ -21,18 +21,6 @@ from pypdf.generic import (
 LOGO_PATH = "cec_logo.png"
 
 
-
-
-import traceback
-
-try:
-    # your existing code
-    pass
-except Exception as e:
-    st.error(traceback.format_exc())
-
-
-
 # ── Prepopulated data ─────────────────────────────────────────────────────────
 
 CONTACTS = {
@@ -1439,6 +1427,163 @@ def generate_pdf():
     anchor._sig_anchor = True
     story.append(anchor)
 
+
+    sig_doc.build(story)
+    buffer.seek(0)
+
+    reader = PdfReader(buffer)
+    writer = PdfWriter()
+    writer.append(reader)
+
+    sig_page_num = sig_position.get("page", len(writer.pages))
+    sig_y        = sig_position.get("y", 200)
+
+    target_page = writer.pages[sig_page_num - 1]
+
+    # ── FIX 3: Tab order on every page ───────────────────────────────────────
+    for page in writer.pages:
+        page[NameObject("/Tabs")] = NameObject("/S")
+
+    # ── Signature & Date field geometry ──────────────────────────────────────
+    box_left   = 72
+    box_right  = 324
+    box_top    = sig_y - 2
+    box_bottom = box_top - 36
+    sig_rect   = [box_left, box_bottom, box_right, box_top]
+
+    date_left  = box_right + 10
+    date_right = date_left + 120
+    date_rect  = [date_left, box_bottom, date_right, box_top]
+
+    # ── FIX 2 & 4: Annotations with /StructParent ────────────────────────────
+    sig_field = DictionaryObject({
+        NameObject("/Type"):         NameObject("/Annot"),
+        NameObject("/Subtype"):      NameObject("/Widget"),
+        NameObject("/FT"):           NameObject("/Sig"),
+        NameObject("/T"):            TextStringObject("Signature1"),
+        NameObject("/TU"):           TextStringObject("Signature of Lead Agency Representative"),
+        NameObject("/Rect"):         ArrayObject([NumberObject(x) for x in sig_rect]),
+        NameObject("/F"):            NumberObject(4),
+        NameObject("/P"):            target_page.indirect_reference,
+        NameObject("/StructParent"): NumberObject(0),
+    })
+
+    date_field = DictionaryObject({
+        NameObject("/Type"):         NameObject("/Annot"),
+        NameObject("/Subtype"):      NameObject("/Widget"),
+        NameObject("/FT"):           NameObject("/Tx"),
+        NameObject("/T"):            TextStringObject("SignatureDate"),
+        NameObject("/TU"):           TextStringObject("Date of Signature"),
+        NameObject("/Rect"):         ArrayObject([NumberObject(v) for v in date_rect]),
+        NameObject("/DA"):           TextStringObject("/Helv 10 Tf 0 g"),
+        NameObject("/V"):            TextStringObject(""),
+        NameObject("/DV"):           TextStringObject(""),
+        NameObject("/F"):            NumberObject(4),
+        NameObject("/P"):            target_page.indirect_reference,
+        NameObject("/StructParent"): NumberObject(1),
+    })
+
+    sig_obj  = writer._add_object(sig_field)
+    date_obj = writer._add_object(date_field)
+
+    # ── Wire annotations onto the page ───────────────────────────────────────
+    annots = target_page.get("/Annots")
+    if annots is None:
+        annots = ArrayObject()
+    else:
+        try:
+            annots = annots.get_object()
+        except Exception:
+            annots = ArrayObject()
+
+    annots.append(sig_obj)
+    annots.append(date_obj)
+    target_page[NameObject("/Annots")] = annots
+
+    # ── FIX 1: Mark document as tagged ───────────────────────────────────────
+    writer._root_object[NameObject("/MarkInfo")] = DictionaryObject({
+        NameObject("/Marked"): NameObject("/true"),
+    })
+    writer._root_object[NameObject("/Lang")] = TextStringObject("en-US")
+    writer._root_object[NameObject("/ViewerPreferences")] = DictionaryObject({
+        NameObject("/DisplayDocTitle"): NameObject("/true"),
+    })
+
+    # ── FIX 4: AcroForm with both fields ─────────────────────────────────────
+    acroform = DictionaryObject({
+        NameObject("/Fields"):   ArrayObject([sig_obj, date_obj]),
+        NameObject("/SigFlags"): NumberObject(3),
+    })
+    writer._root_object[NameObject("/AcroForm")] = acroform
+
+    # ── FIX 2: ParentTree so /StructParent indices resolve ────────────────────
+    parent_tree = DictionaryObject({
+        NameObject("/Nums"): ArrayObject([
+            NumberObject(0), sig_obj,
+            NumberObject(1), date_obj,
+        ])
+    })
+    parent_tree_obj = writer._add_object(parent_tree)
+
+    # ── FIX 1 & 4: Structure tree with form fields as tagged elements ─────────
+    sig_struct = DictionaryObject({
+        NameObject("/Type"): NameObject("/StructElem"),
+        NameObject("/S"):    NameObject("/Form"),
+        NameObject("/T"):    TextStringObject("Signature of Lead Agency Representative"),
+        NameObject("/Obj"):  sig_obj,
+    })
+    sig_struct_obj = writer._add_object(sig_struct)
+
+    date_struct = DictionaryObject({
+        NameObject("/Type"): NameObject("/StructElem"),
+        NameObject("/S"):    NameObject("/Form"),
+        NameObject("/T"):    TextStringObject("Date of Signature"),
+        NameObject("/Obj"):  date_obj,
+    })
+    date_struct_obj = writer._add_object(date_struct)
+
+    struct_root = DictionaryObject({
+        NameObject("/Type"):              NameObject("/StructTreeRoot"),
+        NameObject("/K"):                 ArrayObject([sig_struct_obj, date_struct_obj]),
+        NameObject("/ParentTree"):        parent_tree_obj,
+        NameObject("/ParentTreeNextKey"): NumberObject(2),
+    })
+    struct_root_obj = writer._add_object(struct_root)
+
+    sig_struct[NameObject("/P")]  = struct_root_obj
+    date_struct[NameObject("/P")] = struct_root_obj
+
+    writer._root_object[NameObject("/StructTreeRoot")] = struct_root_obj
+
+    signed_buffer = io.BytesIO()
+    writer.write(signed_buffer)
+    signed_buffer.seek(0)
+    return signed_buffer
+
+
+# ── Generate button ───────────────────────────────────────────────────────────
+
+if st.button("Generate PDF", type="primary", use_container_width=True):
+    validation_errors = []
+    if ra_caltrans_dist and not ra_caltrans_dist_n.strip():
+        validation_errors.append("**Caltrans District #n** — District Number is required.")
+    if ra_fish and not ra_fish_n.strip():
+        validation_errors.append("**Fish & Game Region #n** — Region Number is required.")
+    if ra_wqcb and not ra_wqcb_n.strip():
+        validation_errors.append("**Regional WQCB #n** — WQCB Number is required.")
+    if validation_errors:
+        for msg in validation_errors:
+            st.error(f"⚠️ {msg}")
+    else:
+        pdf_buffer = generate_pdf()
+        st.success("PDF generated — only checked items will appear in the document.")
+        st.download_button(
+            label="Download Notice of Completion PDF",
+            data=pdf_buffer,
+            file_name="notice_of_completion.pdf",
+            mime="application/pdf",
+            use_container_width=True,
+        )
 
 
 
