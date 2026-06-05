@@ -1320,14 +1320,14 @@ def generate_pdf():
     story.append(HRFlowable(width="100%", thickness=0.5, color=colors.lightgrey))
     story.append(Spacer(1, 4))
 
-    story.append(Paragraph("Consulting Firm", heading_style))
+    story.append(Paragraph("Consulting Firm", subheading_style))
     add_field(story, "Firm Name",       field("Consulting Firm", la_firm_name))
     add_field(story, "Address",         field("Address", la_firm_address))
     add_field(story, "City / State / ZIP", field("City/State/ZIP", la_firm_csz))
     add_field(story, "Contact",         field("Contact", la_firm_contact))
     add_field(story, "Phone",           field("Phone", la_firm_phone))
 
-    story.append(Paragraph("Applicant", heading_style))
+    story.append(Paragraph("Applicant", subheading_style))
     add_field(story, "Applicant Name",  field("Applicant", la_app_name))
     add_field(story, "Address",         field("Address", la_app_address))
     add_field(story, "City / State / ZIP", field("City/State/ZIP", la_app_csz))
@@ -1372,6 +1372,14 @@ def generate_pdf():
     reader = PdfReader(buffer)
     writer = PdfWriter()
     writer.append(reader)
+    # Accessibility: mark document as tagged + set document title display
+    writer._root_object[NameObject("/MarkInfo")] = DictionaryObject({
+        NameObject("/Marked"): NameObject("/true"),
+    })
+    writer._root_object[NameObject("/ViewerPreferences")] = DictionaryObject({
+        NameObject("/DisplayDocTitle"): NameObject("/true"),
+    })
+    writer._root_object[NameObject("/Lang")] = TextStringObject("en-US")
 
     sig_page_num = sig_position.get("page", len(writer.pages))
     sig_y        = sig_position.get("y", 200)
