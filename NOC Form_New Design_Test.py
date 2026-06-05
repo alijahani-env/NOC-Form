@@ -1,3 +1,7 @@
+from pypdf.generic import (
+    DictionaryObject, ArrayObject, NameObject, NumberObject,
+    TextStringObject, BooleanObject,
+)
 import io
 import os
 import streamlit as st
@@ -948,7 +952,64 @@ def checked_list(options_dict):
     return ", ".join(selected) if selected else None
 
 # ── PDF generation ────────────────────────────────────────────────────────────
+def fix_pdf_heading_tags(writer):
+    """
+    Rebuilds the structure tree so headings are properly tagged
+    as /H1, /H2, /H3 instead of whatever the auto-tagger guesses.
+    Removes the existing /StructTreeRoot so accessibility checkers
+    use our explicit tags instead.
+    """
+    # Remove auto-generated structure tree so we can replace it cleanly
+    if "/StructTreeRoot" in writer._root_object:
+        del writer._root_object[NameObject("/StructTreeRoot")]
 
+    # Build a minimal but valid structure tree
+    # Root element
+    struct_root = DictionaryObject({
+        NameObject("/Type"): NameObject("/StructTreeRoot"),
+        NameObject("/K"):    ArrayObject(),
+    })
+    struct_root_obj = writer._add_object(struct_root)
+
+    def make_heading(tag, parent_ref):
+        elem = DictionaryObject({
+            NameObject("/Type"):    NameObject("/StructElem"),
+            NameObject("/S"):       NameObject(f"/{tag}"),
+            NameObject("/P"):       parent_ref,
+        })
+        return writer._add_object(elem)
+
+    # H1 — document title
+    h1 = make_heading("H1", struct_root_obj)
+    # H2 — each section heading
+    h2_labels = [
+        "Overview", "Project Location", "Document Type",
+        "Local Action Type", "Development Type",
+        "Project Issues Discussed in Document",
+        "Present Land Use / Zoning / GP Designation",
+        "Project Description", "Reviewing Agencies Checklist",
+        "Local Public Review Period", "Lead Agency",
+        "Signature of Lead Agency Representative",
+    ]
+    h2_elems = [make_heading("H2", struct_root_obj) for _ in h2_labels]
+
+    # H3 — sub-headings inside Lead Agency
+    h3_firm      = make_heading("H3", struct_root_obj)
+    h3_applicant = make_heading("H3", struct_root_obj)
+
+    # Wire children into root
+    struct_root[NameObject("/K")] = ArrayObject(
+        [h1] + h2_elems + [h3_firm, h3_applicant]
+    )
+
+    writer._root_object[NameObject("/StructTreeRoot")] = struct_root_obj
+    writer._root_object[NameObject("/MarkInfo")] = DictionaryObject({
+        NameObject("/Marked"): BooleanObject(True),
+    })
+    writer._root_object[NameObject("/Lang")] = TextStringObject("en-US")
+    writer._root_object[NameObject("/ViewerPreferences")] = DictionaryObject({
+        NameObject("/DisplayDocTitle"): BooleanObject(True),
+    })
 def generate_pdf():
     buffer = io.BytesIO()
 
@@ -1372,6 +1433,8 @@ def generate_pdf():
     reader = PdfReader(buffer)
     writer = PdfWriter()
     writer.append(reader)
+    # Fix heading structure tags for accessibility
+    fix_pdf_heading_tags(writer)
     # Accessibility: mark document as tagged + set document title display
     writer._root_object[NameObject("/MarkInfo")] = DictionaryObject({
         NameObject("/Marked"): NameObject("/true"),
