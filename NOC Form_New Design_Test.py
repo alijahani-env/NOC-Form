@@ -1,4 +1,5 @@
-pip install pikepdf
+
+- name: Install Python packages
 import pikepdf
 from pypdf.generic import (
     DictionaryObject, ArrayObject, NameObject, NumberObject,
