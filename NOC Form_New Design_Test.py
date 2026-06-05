@@ -956,16 +956,16 @@ def generate_pdf():
 
     styles = getSampleStyleSheet()
 
-    # H1 — document title
+
+
     title_style = ParagraphStyle(
         "FormTitle",
         parent=styles["Heading1"],
         fontSize=14,
         spaceAfter=4,
         textColor=colors.HexColor("#003366"),
-        outlineLevel=0,
+        outlineLevel=0,   # H1 → level 0
     )
-    # H2 — section headings (explicit PDF structure tag via bulletText trick)
     heading_style = ParagraphStyle(
         "SectionHeading",
         parent=styles["Heading2"],
@@ -973,8 +973,19 @@ def generate_pdf():
         spaceBefore=14,
         spaceAfter=4,
         textColor=colors.HexColor("#003366"),
-        outlineLevel=1,
+        outlineLevel=1,   # H2 → level 1
     )
+# Add this for your sub-headings (Consulting Firm, Applicant)
+    subheading_style = ParagraphStyle(
+        "SubHeading",
+        parent=styles["Heading3"],
+        fontSize=10,
+        spaceBefore=8,
+        spaceAfter=4,
+        textColor=colors.HexColor("#003366"),
+        outlineLevel=2,   # H3 → level 2
+    )
+
     label_style = ParagraphStyle(
         "Label", parent=styles["Normal"],
         fontSize=9, textColor=colors.grey, spaceAfter=1,
