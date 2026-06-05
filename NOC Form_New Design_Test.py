@@ -1,3 +1,4 @@
+pip install pikepdf
 import pikepdf
 from pypdf.generic import (
     DictionaryObject, ArrayObject, NameObject, NumberObject,
