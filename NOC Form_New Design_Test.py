@@ -18,6 +18,9 @@ from pypdf.generic import (
     TextStringObject,
 )
 
+LOGO_PATH = "cec_logo.png"
+
+
 
 
 import traceback
@@ -29,8 +32,6 @@ except Exception as e:
     st.error(traceback.format_exc())
 
 
-
-LOGO_PATH = "cec_logo.png"
 
 # ── Prepopulated data ─────────────────────────────────────────────────────────
 
