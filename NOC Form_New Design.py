@@ -14,7 +14,7 @@ from pypdf.generic import (
     TextStringObject,
 )
 
-LOGO_PATH = "cec_logo.png"
+LOGO_PATH = "cec_logo_.png"
 
 # ── Prepopulated data ─────────────────────────────────────────────────────────
 
