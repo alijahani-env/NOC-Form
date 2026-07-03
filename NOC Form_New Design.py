@@ -478,7 +478,7 @@ with col3:
 with col4:
     range_ = st.text_input("Range", placeholder="e.g. 1W", value=preset_val(preset, "range_"), key="range_")
 
-col1, col2 = st.columns(2)
+col1, col2, col3 = st.columns(3)
 with col1:
     state_highways = st.text_input("State Highways (within 2 miles)", placeholder="e.g. I-505, I-80", value=preset_val(preset, "state_highways"), key="state_highways")
     railways = st.text_input("Railways", placeholder="e.g. Union Pacific", value=preset_val(preset, "railways"), key="railways")
