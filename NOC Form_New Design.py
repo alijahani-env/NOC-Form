@@ -485,7 +485,9 @@ with col1:
 with col2:
     airports = st.text_input("Airports", placeholder="e.g. Nut Tree Airport", value=preset_val(preset, "airports"), key="airports")
     schools = st.text_input("Schools", placeholder="e.g. Blake Austin College", value=preset_val(preset, "schools"), key="schools")
-
+with col3:
+    Waterways = st.text_input("Waterways", placeholder="e.g. Guadalupe River", value=preset_val(preset, "Waterways"), key="Waterways")
+    
 st.divider()
 
 # ── SECTION: Document Type ────────────────────────────────────────────────────
@@ -1055,7 +1057,8 @@ def generate_pdf():
     add_field(story, "Airports",  val_or_na(airports))
     add_field(story, "Railways",  val_or_na(railways))
     add_field(story, "Schools",   val_or_na(schools))
-
+    add_field(story, "Waterways",   val_or_na(Waterways))
+    
     # Document Type
     ceqa_items = {
         "NOP":                      ceqa_nop,
