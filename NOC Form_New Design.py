@@ -37,15 +37,15 @@ BOOLEAN_FIELDS = {
     "lat_other_check", "dev_power", "dev_power_wind", "dev_power_solar", "dev_power_bess", "dev_power_other",
     "dev_nonpower", "dev_residential", "dev_office", "dev_commercial", "dev_industrial", "dev_educational",
     "dev_recreational", "dev_water", "dev_transportation", "dev_mining", "dev_waste", "dev_hazardous",
-    "dev_other", "issue_aesthetic_visual", "issue_agricultural_land", "issue_air_quality",
-    "issue_archeological_historical", "issue_biological_resources", "issue_coastal_zone", "issue_cumulative_effects",
+    "dev_other", "issue_aesthetic", "issue_Agriculture_and_Forestry_Resources", "issue_air_quality",
+    "issue_biological_resources", "issue_coastal_zone", "issue_cumulative_effects",
     "issue_drainage_absorption", "issue_economic_jobs", "issue_energy", "issue_fiscal",
-    "issue_flood_plain_flooding", "issue_forest_land_fire_hazard", "issue_geologic_seismic",
-    "issue_greenhouse_gas_emissions", "issue_growth_inducement", "issue_land_use", "issue_minerals",
-    "issue_noise", "issue_other", "issue_population_housing_balance", "issue_public_services_facilities",
+    "issue_flood_plain_flooding", "issue_geologyc_soils", "issue_greenhouse_gas_emissions", "issue_growth_inducement", "issue_Hazards_Hazardous_Materials", 
+    "issue_Hydrology_Water_Quality", "issue_land_use_Planning", "issue_Mandatory_Findings_of_Significance", "issue_mineral_resources",
+    "issue_noise", "issue_population_housing_balance", "issue_public_services_facilities",
     "issue_recreation_parks", "issue_schools_universities", "issue_septic_systems", "issue_sewer_capacity",
-    "issue_soil_erosion_compaction_grading", "issue_solid_waste", "issue_toxic_hazardous",
-    "issue_traffic_circulation", "issue_tribal_cultural_resources", "issue_vegetation", "issue_water_quality",
+    "issue_soil_waste", "Transportation", 
+    "issue_tribal_cultural_resources", "issue_Utilities_Service_Systems", "issue_vegetation", "issue_wetland_riparian", "issue_Wildfire",
     "issue_water_supply_groundwater", "issue_wetland_riparian", "ra_air", "ra_boating", "ra_cal_ema",
     "ra_chp", "ra_caltrans_dist", "ra_caltrans_aero", "ra_caltrans_plan", "ra_cvfpb", "ra_coachella",
     "ra_coastal", "ra_colorado", "ra_conservation", "ra_corrections", "ra_delta", "ra_education", "ra_energy",
@@ -729,7 +729,7 @@ st.subheader("Project Issues Discussed in Document")
 c1, c2, c3, c4 = st.columns(4)
 with c1:
     issue_aesthetic = st.checkbox("Aesthetic", value=preset_bool(preset, "issue_aesthetic", True), key="issue_aesthetic")
-    issue_agricultural_land = st.checkbox("Agriculture and Forestry Resources", value=preset_bool(preset, "issue_agricultural_land", True), key="issue_agricultural_land")
+    issue_Agriculture_and_Forestry_Resources = st.checkbox("Agriculture and Forestry Resources", value=preset_bool(preset, "issue_Agriculture_and_Forestry_Resources", True), key="issue_Agriculture_and_Forestry_Resources")
     issue_air_quality = st.checkbox("Air Quality", value=preset_bool(preset, "issue_air_quality", True), key="issue_air_quality")
     issue_biological_resources = st.checkbox("Biological Resources", value=preset_bool(preset, "issue_biological_resources", True), key="issue_biological_resources")
     issue_coastal_zone = st.checkbox("Coastal Zone", value=preset_bool(preset, "issue_coastal_zone", False), key="issue_coastal_zone")
@@ -744,7 +744,7 @@ with c2:
     issue_geology_soils = st.checkbox("Geology/Soils", value=preset_bool(preset, "issue_geology_soils", True), key="issue_geology_soils")
     issue_greenhouse_gas_emissions = st.checkbox("Greenhouse Gas Emissions", value=preset_bool(preset, "issue_greenhouse_gas_emissions", True), key="issue_greenhouse_gas_emissions")
     issue_growth_inducement = st.checkbox("Growth Inducement", value=preset_bool(preset, "issue_growth_inducement", False), key="issue_growth_inducement")
-    issue_Hazards_Hazardous_Materials = st.checkbox("Forest Hazards & Hazardous Materials", value=preset_bool(preset, "issue_Hazards_Hazardous_Materials", True), key="issue_Hazards_Hazardous_Materials")
+    issue_Hazards_Hazardous_Materials = st.checkbox("Hazards & Hazardous Materials", value=preset_bool(preset, "issue_Hazards_Hazardous_Materials", True), key="issue_Hazards_Hazardous_Materials")
     issue_Hydrology_Water_Quality = st.checkbox("Hydrology/Water Quality", value=preset_bool(preset, "issue_Hydrology_Water_Quality", True), key="issue_Hydrology_Water_Quality")
     issue_land_use_Planning = st.checkbox("Land Use Planning", value=preset_bool(preset, "issue_land_use_Planning", True), key="issue_land_use_Planning")
     
@@ -1178,24 +1178,26 @@ def generate_pdf():
 
     # Project Issues
     issues_checked = {
-        "Aesthetic/Visual": issue_aesthetic,
-        "Agricultural Land": issue_agricultural_land,
+        "Aesthetic": issue_aesthetic,
+        "Agriculture and Forestry Resources": issue_Agriculture_and_Forestry_Resources,
         "Air Quality": issue_air_quality,
-        "Archeological/Historical": issue_Cultural_Resources,
         "Biological Resources": issue_biological_resources,
         "Coastal Zone": issue_coastal_zone,
+        "Cultural Resources": issue_Cultural_Resources,
         "Cumulative Effects": issue_cumulative_effects,
         "Drainage/Absorption": issue_drainage_absorption,
         "Economic/Jobs": issue_economic_jobs,
         "Energy": issue_energy,
         "Fiscal": issue_fiscal,
         "Flood Plain/Flooding": issue_flood_plain_flooding,
-        "Forest Land/Fire Hazard": issue_Hazards_Hazardous_Materials,
-        "Geologic/Seismic": issue_geology_soils,
+        "Geology/Soils": issue_geology_soils,
         "Greenhouse Gas Emissions": issue_greenhouse_gas_emissions,
         "Growth Inducement": issue_growth_inducement,
-        "Land Use": issue_land_use_Planning,
-        "Minerals": issue_mineral_resources,
+        "Hazards & Hazardous Materials": issue_Hazards_Hazardous_Materials,
+        "Hydrology/Water Quality": issue_Hydrology_Water_Quality,
+        "Land Use Planning": issue_land_use_Planning,
+        "Mandatory Findings of Significance": issue_Mandatory_Findings_of_Significance,
+        "Mineral Resources": issue_mineral_resources,
         "Noise": issue_noise,
         "Population/Housing Balance": issue_population_housing_balance,
         "Public Services/Facilities": issue_public_services_facilities,
@@ -1203,15 +1205,14 @@ def generate_pdf():
         "Schools/Universities": issue_schools_universities,
         "Septic Systems": issue_septic_systems,
         "Sewer Capacity": issue_sewer_capacity,
-        #"Soil Erosion/Compaction/Grading": issue_soil_erosion_compaction_grading,
         "Solid Waste": issue_solid_waste,
-        #"Toxic/Hazardous": issue_toxic_hazardous,
-        #"Traffic/Circulation": issue_traffic_circulation,
+        "Transportation": issue_Transportation,
         "Tribal Cultural Resources": issue_tribal_cultural_resources,
+        "Utilities/Service Systems": issue_Utilities_Service_Systems,
         "Vegetation": issue_vegetation,
-        #"Water Quality": issue_water_quality,
-        #"Water Supply/Groundwater": issue_water_supply_groundwater,
         "Wetland/Riparian": issue_wetland_riparian,
+        "Wildfire": issue_Wildfire,
+       
     }
     #if issue_other and issue_other_text.strip():
      #   issues_checked[f"Other: {issue_other_text.strip()}"] = True
