@@ -723,6 +723,11 @@ if dev_nonpower:
 
 st.divider()
 
+
+# ── DEBUG: Inspect raw values coming from preset before checkbox hydration ──
+st.write("DEBUG issue_Cultural_Resources:", preset.get("issue_Cultural_Resources"), type(preset.get("issue_Cultural_Resources")))
+st.write("DEBUG ALL ISSUE FIELDS:", {k: preset.get(k) for k in preset.keys() if "issue_" in k})
+
 # ── SECTION: Project Issues ───────────────────────────────────────────────────
 st.subheader("Project Issues Discussed in Document")
 
