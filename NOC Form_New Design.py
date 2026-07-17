@@ -141,9 +141,11 @@ def parse_date_value(value):
 def load_presets():
     import pandas as pd
     base_dir = os.getcwd()
-    
-      
-    candidate_paths = [os.path.join(base_dir, "project_data.ods"), os.path.join(base_dir, "project_data(5).ods")]
+
+    candidate_paths = [
+        os.path.join(base_dir, "project_data.ods"),
+        os.path.join(base_dir, "project_data(5).ods"),
+    ]
     candidate_paths.extend(
         os.path.join(base_dir, name)
         for name in sorted(os.listdir(base_dir))
@@ -153,47 +155,57 @@ def load_presets():
     if not ods_path:
         st.warning(f"No project_data ODS file found in: {base_dir}")
         return {}
+
     try:
         df = pd.read_excel(ods_path, engine="odf", dtype=object)
+
+        # Normalize column headers
         df = df.rename(columns=lambda col: normalize_header(col))
         df = df.loc[:, ~df.columns.duplicated()]
         df = df.dropna(how="all")
+
+        # ─────────────────────────────────────────────
+        # AUTOMATIC CLEANING (NO BUTTON NEEDED)
+        # ─────────────────────────────────────────────
+
+        def clean_value(v):
+            if isinstance(v, str):
+                v2 = (
+                    v.replace("‘", "")
+                     .replace("’", "")
+                     .replace("“", "")
+                     .replace("”", "")
+                     .replace("'", "")
+                     .strip()
+                     .lower()
+                )
+                if v2 in ("nan", "none"):
+                    return ""
+                return v2
+            return v
+
+        df = df.applymap(clean_value)
+
+        # Fix boolean fields
+        for bf in BOOLEAN_FIELDS:
+            if bf in df.columns:
+                df[bf] = df[bf].apply(lambda x: parse_bool(x, False))
+
+        # Fix date fields
+        for dt in DATE_FIELDS:
+            if dt in df.columns:
+                df[dt] = df[dt].apply(parse_date_value)
+
+        # Build dictionary
         presets = {}
         for _, row in df.iterrows():
-            raw_row = {normalize_header(key): value for key, value in row.to_dict().items()}
-            row_dict = {}
-           
-# UNIVERSAL CLEANER (works for ALL your fields automatically)
-            raw_row = {k: (str(v).replace("'", "").replace("‘","").replace("’","").replace("“","").replace("”","").strip().lower()
-                           if isinstance(v, str) else v)
-                       for k, v in raw_row.items()}
-
-            for key, raw_value in raw_row.items():
-                if not key:
-                    continue
-
-                if key in BOOLEAN_FIELDS:
-                    if isinstance(raw_value, str):
-                        raw_value = (
-                            raw_value.replace("'", "")
-                                     .replace("‘", "")
-                                     .replace("’", "")
-                                     .replace("“", "")
-                                     .replace("”", "")
-                                     .strip()
-                                     .lower()
-                        )
-                    row_dict[key] = parse_bool(raw_value, False)
-
-    
-                elif key in DATE_FIELDS:
-                    row_dict[key] = parse_date_value(raw_value)
-                else:
-                    row_dict[key] = clean_scalar(raw_value, "")
+            row_dict = {k: row[k] for k in df.columns if k}
             title = clean_scalar(row_dict.get("project_title", ""), "")
             if title:
                 presets[title] = row_dict
+
         return presets
+
     except Exception as e:
         st.error(f"Failed to load project presets from ODS: {e}")
         return {}
