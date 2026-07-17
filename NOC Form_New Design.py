@@ -193,6 +193,11 @@ def load_presets():
             title = clean_scalar(row_dict.get("project_title", ""), "")
             if title:
                 presets[title] = row_dict
+        # FINAL BOOLEAN NORMALIZATION
+        for title, row in presets.items():
+            for key in BOOLEAN_FIELDS:
+                if key in row:
+                    row[key] = parse_bool(row[key], False)
         return presets
     except Exception as e:
         st.error(f"Failed to load project presets from ODS: {e}")
