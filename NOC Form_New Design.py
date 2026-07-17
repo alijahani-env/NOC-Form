@@ -203,8 +203,7 @@ def load_presets():
         st.error(f"Failed to load project presets from ODS: {e}")
         return {}
 
-PRESETS = load_presets()
-PROJECT_TITLES = list(PRESETS.keys()) if PRESETS else []
+
 
 def preset_val(preset, key, fallback=""):
     if not preset:
@@ -278,6 +277,8 @@ def apply_preset_to_session(project_title):
 # ── Page setup ────────────────────────────────────────────────────────────────
 
 st.set_page_config(page_title="Notice of Completion Generator", layout="centered")
+PRESETS = load_presets()
+PROJECT_TITLES = list(PRESETS.keys()) if PRESETS else []
 
 # --- DEBUG BUTTON TO INSPECT ODS COLUMN ---
 if st.button("Test ODS values"):
