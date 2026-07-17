@@ -192,8 +192,16 @@ def preset_val(preset, key, fallback=""):
  #   return parse_bool(preset.get(key), fallback)
 
 def preset_bool(preset, key, fallback=False):
-    raw = preset.get(key) if preset else fallback
-    return parse_bool(raw, fallback)
+    
+    if not preset:
+        return bool(fallback)
+    raw = preset.get(key, fallback)
+    if raw is None:
+        return bool(fallback)
+    parsed = parse_bool(raw, fallback)
+    return bool(parsed)
+
+
 
 
 def preset_date(preset, key):
