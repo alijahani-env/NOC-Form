@@ -259,16 +259,12 @@ FIELD_KEY_MAP = {
 def apply_preset_to_session(project_title):
     preset = PRESETS.get(project_title, {})
 
-    # Prevent double-loading the same project
-    if st.session_state.get("_loaded_project_title") == project_title:
-        return preset
-
-    # Clear loaded marker if no project selected
+    # If no project selected, reset load marker
     if not project_title:
         st.session_state["_loaded_project_title"] = ""
         return {}
 
-    # Loop through all fields in the preset
+    # Loop through all preset fields
     for key, value in preset.items():
 
         if key == "project_title":
@@ -276,7 +272,7 @@ def apply_preset_to_session(project_title):
 
         target_key = FIELD_KEY_MAP.get(key, key)
 
-        # UNIVERSAL CLEANER
+        # UNIVERSAL STRING CLEAN
         if isinstance(value, str):
             value = (
                 value.replace("‘", "")
@@ -288,33 +284,31 @@ def apply_preset_to_session(project_title):
                      .lower()
             )
 
-        # BOOLEAN FIX
+        # BOOLEAN
         if key in BOOLEAN_FIELDS:
             st.session_state[target_key] = parse_bool(value, False)
             continue
 
-        # DATE FIX
+        # DATE
         if key in DATE_FIELDS:
             parsed_date = parse_date_value(value)
             st.session_state[target_key] = parsed_date
-
-            # Sync start and end dates
             if key == "review_start":
                 st.session_state.date_start = parsed_date
             elif key == "review_end":
                 st.session_state.date_end = parsed_date
-
             continue
 
-        # NORMAL TEXT FIELDS
+        # NORMAL FIELD
         st.session_state[target_key] = clean_scalar(value, "")
 
-    # CONTACT NAME special-case
+    # Contact name
     if clean_scalar(preset.get("contact_name", ""), ""):
         st.session_state["contact_name"] = clean_scalar(preset.get("contact_name"), "")
 
-    # Mark project as loaded
+    # Mark project loaded — but does NOT block future loads anymore
     st.session_state["_loaded_project_title"] = project_title
+
     return preset
 
 
