@@ -162,6 +162,12 @@ def load_presets():
         for _, row in df.iterrows():
             raw_row = {normalize_header(key): value for key, value in row.to_dict().items()}
             row_dict = {}
+           
+# UNIVERSAL CLEANER (works for ALL your fields automatically)
+            raw_row = {k: (str(v).replace("'", "").replace("‘","").replace("’","").replace("“","").replace("”","").strip().lower()
+                           if isinstance(v, str) else v)
+                       for k, v in raw_row.items()}
+
             for key, raw_value in raw_row.items():
                 if not key:
                     continue
