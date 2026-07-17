@@ -18,6 +18,18 @@ from pypdf.generic import (
 
 LOGO_PATH = "CEC_logo.png"
 
+def clean_ods_row(value):
+    if isinstance(value, str):
+        return (
+            value.replace("‘","")
+                 .replace("’","")
+                 .replace("“","")
+                 .replace("”","")
+                 .replace("'", "")
+                 .strip()
+                 .lower()
+        )
+    return value
 # ── Prepopulated data ─────────────────────────────────────────────────────────
 
 CONTACTS = {
