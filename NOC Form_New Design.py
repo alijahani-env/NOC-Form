@@ -54,6 +54,66 @@ BOOLEAN_FIELDS = {
     "ra_san_gabriel", "ra_san_joaquin", "ra_santa_monica", "ra_state_lands", "ra_swrcb_cwg", "ra_swrcb_wq",
     "ra_swrcb_wr", "ra_tahoe", "ra_toxic", "ra_water_res",
 }
+
+
+
+# ───────────────────────────────────────────────────────────────
+# GLOBAL CHECKBOX SANITIZER PATCH (fixes refresh crashes)
+# ───────────────────────────────────────────────────────────────
+
+def ensure_bool_session_state():
+    """
+    Guarantee that all checkbox-related session_state keys contain
+    True/False ONLY, never None, '', nan, NaT, pd.NA, or anything else.
+    Prevents Streamlit checkbox TypeError on rerun.
+    """
+    import pandas as pd
+
+    for key in BOOLEAN_FIELDS:
+        if key in st.session_state:
+            val = st.session_state.get(key)
+
+            # Handle pandas NA / NaT / numpy nan
+            if val is None or pd.isna(val):
+                st.session_state[key] = False
+                continue
+
+            # Convert odd ODS values to string for parsing
+            if isinstance(val, (str, int, float)):
+                st.session_state[key] = parse_bool(val, False)
+                continue
+
+            # Force all other types into a strict boolean
+            st.session_state[key] = bool(val)
+        else:
+            # If missing, initialize safely
+            st.session_state[key] = False
+
+
+def safe_bool(preset, key, fallback=False):
+    """
+    Combined preset + session_state boolean getter.
+    ALWAYS returns True/False.
+    """
+    raw = None
+
+    # Priority: session_state value (if any)
+    if key in st.session_state:
+        raw = st.session_state.get(key)
+    # Otherwise use preset data
+    elif preset:
+        raw = preset.get(key, fallback)
+    else:
+        raw = fallback
+
+    return bool(parse_bool(raw, fallback))
+
+
+# Run sanitizer IMMEDIATELY so Streamlit never restores bad values
+ensure_bool_session_state()
+
+
+
 DATE_FIELDS = {"review_start", "review_end"}
 
 HEADER_ALIASES = {
@@ -185,13 +245,13 @@ def preset_val(preset, key, fallback=""):
         return fallback
     return clean_scalar(preset.get(key, fallback), fallback)
 
-#def preset_bool(preset, key, fallback=False):
+#def safe_bool(preset, key, fallback=False):
  #   if not preset:
  #       return fallback
  #   return parse_bool(preset.get(key), fallback)
 
 
-def preset_bool(preset, key, fallback=False):
+def safe_bool(preset, key, fallback=False):
     if not preset:
         return fallback
     return parse_bool(preset.get(key), fallback)
@@ -506,15 +566,15 @@ st.markdown("**CEQA**")
 
 col1, col2, col3 = st.columns(3)
 with col1:
-    ceqa_nop = st.checkbox("NOP", value=preset_bool(preset, "ceqa_nop", False), key="ceqa_nop")
-    ceqa_neg_dec = st.checkbox("Neg Dec", value=preset_bool(preset, "ceqa_neg_dec", False), key="ceqa_neg_dec")
-    ceqa_draft_eir = st.checkbox("Draft EIR", value=preset_bool(preset, "ceqa_draft_eir", False), key="ceqa_draft_eir")
+    ceqa_nop = st.checkbox("NOP", value=safe_bool(preset, "ceqa_nop", False), key="ceqa_nop")
+    ceqa_neg_dec = st.checkbox("Neg Dec", value=safe_bool(preset, "ceqa_neg_dec", False), key="ceqa_neg_dec")
+    ceqa_draft_eir = st.checkbox("Draft EIR", value=safe_bool(preset, "ceqa_draft_eir", False), key="ceqa_draft_eir")
 with col2:
-    ceqa_early_cons = st.checkbox("Early Cons", value=preset_bool(preset, "ceqa_early_cons", False), key="ceqa_early_cons")
-    ceqa_mit_neg = st.checkbox("Mit Neg Dec", value=preset_bool(preset, "ceqa_mit_neg", False), key="ceqa_mit_neg")
-    ceqa_sub_eir = st.checkbox("Supplement/Subsequent EIR", value=preset_bool(preset, "ceqa_sub_eir", False), key="ceqa_sub_eir")
+    ceqa_early_cons = st.checkbox("Early Cons", value=safe_bool(preset, "ceqa_early_cons", False), key="ceqa_early_cons")
+    ceqa_mit_neg = st.checkbox("Mit Neg Dec", value=safe_bool(preset, "ceqa_mit_neg", False), key="ceqa_mit_neg")
+    ceqa_sub_eir = st.checkbox("Supplement/Subsequent EIR", value=safe_bool(preset, "ceqa_sub_eir", False), key="ceqa_sub_eir")
 with col3:
-    ceqa_other_check = st.checkbox("Other (CEQA)", value=preset_bool(preset, "ceqa_other_check", False), key="ceqa_other_check")
+    ceqa_other_check = st.checkbox("Other (CEQA)", value=safe_bool(preset, "ceqa_other_check", False), key="ceqa_other_check")
 
 # Supplement/Subsequent EIR → prompt for Prior SCH No.
 ceqa_prior_sch = ""
@@ -529,34 +589,34 @@ if ceqa_other_check:
 
 # -- NEPA (collapsed behind a checkbox) ---------------------------------------
 st.markdown("**NEPA**")
-nepa_section = st.checkbox("NEPA document included", value=preset_bool(preset, "nepa_section", False), key="nepa_section")
+nepa_section = st.checkbox("NEPA document included", value=safe_bool(preset, "nepa_section", False), key="nepa_section")
 
 nepa_noi = nepa_ea = nepa_eis = nepa_fonsi = False
 if nepa_section:
     col1, col2, col3, col4 = st.columns(4)
     with col1:
-        nepa_noi = st.checkbox("NOI", value=preset_bool(preset, "nepa_noi", False), key="nepa_noi")
+        nepa_noi = st.checkbox("NOI", value=safe_bool(preset, "nepa_noi", False), key="nepa_noi")
     with col2:
-        nepa_ea = st.checkbox("EA", value=preset_bool(preset, "nepa_ea", False), key="nepa_ea")
+        nepa_ea = st.checkbox("EA", value=safe_bool(preset, "nepa_ea", False), key="nepa_ea")
     with col3:
-        nepa_eis = st.checkbox("Draft EIS", value=preset_bool(preset, "nepa_eis", False), key="nepa_eis")
+        nepa_eis = st.checkbox("Draft EIS", value=safe_bool(preset, "nepa_eis", False), key="nepa_eis")
     with col4:
-        nepa_fonsi = st.checkbox("FONSI", value=preset_bool(preset, "nepa_fonsi", False), key="nepa_fonsi")
+        nepa_fonsi = st.checkbox("FONSI", value=safe_bool(preset, "nepa_fonsi", False), key="nepa_fonsi")
 
 # -- Other document type (collapsed behind a checkbox) ------------------------
 st.markdown("**Other**")
-other_section = st.checkbox("Other document type included", value=preset_bool(preset, "other_section", False), key="other_section")
+other_section = st.checkbox("Other document type included", value=safe_bool(preset, "other_section", False), key="other_section")
 
 other_joint = other_final = other_custom_check = False
 other_custom_text = ""
 if other_section:
     col1, col2, col3 = st.columns(3)
     with col1:
-        other_joint = st.checkbox("Joint Document", value=preset_bool(preset, "other_joint", False), key="other_joint")
+        other_joint = st.checkbox("Joint Document", value=safe_bool(preset, "other_joint", False), key="other_joint")
     with col2:
-        other_final = st.checkbox("Final Document", value=preset_bool(preset, "other_final", False), key="other_final")
+        other_final = st.checkbox("Final Document", value=safe_bool(preset, "other_final", False), key="other_final")
     with col3:
-        other_custom_check = st.checkbox("Other", value=preset_bool(preset, "other_custom_check", False), key="other_custom_check")
+        other_custom_check = st.checkbox("Other", value=safe_bool(preset, "other_custom_check", False), key="other_custom_check")
     if other_custom_check:
         other_custom_text = st.text_input("Other document type (please specify)", placeholder="Describe document type", value=preset_val(preset, "other_custom_text"), key="other_custom_text")
 
@@ -568,24 +628,24 @@ st.subheader("Local Action Type")
 
 col1, col2, col3 = st.columns(3)
 with col1:
-    lat_gpu = st.checkbox("General Plan Update", value=preset_bool(preset, "lat_gpu", False), key="lat_gpu")
-    lat_gpa = st.checkbox("General Plan Amendment", value=preset_bool(preset, "lat_gpa", False), key="lat_gpa")
-    lat_gpe = st.checkbox("General Plan Element", value=preset_bool(preset, "lat_gpe", False), key="lat_gpe")
-    lat_cp = st.checkbox("Community Plan", value=preset_bool(preset, "lat_cp", False), key="lat_cp")
-    lat_sp = st.checkbox("Specific Plan", value=preset_bool(preset, "lat_sp", False), key="lat_sp")
+    lat_gpu = st.checkbox("General Plan Update", value=safe_bool(preset, "lat_gpu", False), key="lat_gpu")
+    lat_gpa = st.checkbox("General Plan Amendment", value=safe_bool(preset, "lat_gpa", False), key="lat_gpa")
+    lat_gpe = st.checkbox("General Plan Element", value=safe_bool(preset, "lat_gpe", False), key="lat_gpe")
+    lat_cp = st.checkbox("Community Plan", value=safe_bool(preset, "lat_cp", False), key="lat_cp")
+    lat_sp = st.checkbox("Specific Plan", value=safe_bool(preset, "lat_sp", False), key="lat_sp")
 with col2:
-    lat_mp = st.checkbox("Master Plan", value=preset_bool(preset, "lat_mp", False), key="lat_mp")
-    lat_pud = st.checkbox("Planned Unit Development", value=preset_bool(preset, "lat_pud", False), key="lat_pud")
-    lat_rezone = st.checkbox("Rezone", value=preset_bool(preset, "lat_rezone", False), key="lat_rezone")
-    lat_prezone = st.checkbox("Prezone", value=preset_bool(preset, "lat_prezone", False), key="lat_prezone")
-    lat_annex = st.checkbox("Annexation", value=preset_bool(preset, "lat_annex", False), key="lat_annex")
+    lat_mp = st.checkbox("Master Plan", value=safe_bool(preset, "lat_mp", False), key="lat_mp")
+    lat_pud = st.checkbox("Planned Unit Development", value=safe_bool(preset, "lat_pud", False), key="lat_pud")
+    lat_rezone = st.checkbox("Rezone", value=safe_bool(preset, "lat_rezone", False), key="lat_rezone")
+    lat_prezone = st.checkbox("Prezone", value=safe_bool(preset, "lat_prezone", False), key="lat_prezone")
+    lat_annex = st.checkbox("Annexation", value=safe_bool(preset, "lat_annex", False), key="lat_annex")
 with col3:
-    lat_redevel = st.checkbox("Redevelopment", value=preset_bool(preset, "lat_redevel", False), key="lat_redevel")
-    lat_use = st.checkbox("Use Permit", value=preset_bool(preset, "lat_use", False), key="lat_use")
-    lat_coastal = st.checkbox("Coastal Permit", value=preset_bool(preset, "lat_coastal", False), key="lat_coastal")
-    lat_site = st.checkbox("Site Plan", value=preset_bool(preset, "lat_site", False), key="lat_site")
-    lat_land_div = st.checkbox("Land Division (Subdivision, etc.)", value=preset_bool(preset, "lat_land_div", False), key="lat_land_div")
-    lat_other_check = st.checkbox("Other (Local Action)", value=preset_bool(preset, "lat_other_check", False), key="lat_other_check")
+    lat_redevel = st.checkbox("Redevelopment", value=safe_bool(preset, "lat_redevel", False), key="lat_redevel")
+    lat_use = st.checkbox("Use Permit", value=safe_bool(preset, "lat_use", False), key="lat_use")
+    lat_coastal = st.checkbox("Coastal Permit", value=safe_bool(preset, "lat_coastal", False), key="lat_coastal")
+    lat_site = st.checkbox("Site Plan", value=safe_bool(preset, "lat_site", False), key="lat_site")
+    lat_land_div = st.checkbox("Land Division (Subdivision, etc.)", value=safe_bool(preset, "lat_land_div", False), key="lat_land_div")
+    lat_other_check = st.checkbox("Other (Local Action)", value=safe_bool(preset, "lat_other_check", False), key="lat_other_check")
 
 lat_other_text = ""
 if lat_other_check:
@@ -598,7 +658,7 @@ st.divider()
 st.subheader("Development Type")
 
 # ── Power ──
-dev_power = st.checkbox("Power", value=preset_bool(preset, "dev_power", True), key="dev_power")
+dev_power = st.checkbox("Power", value=safe_bool(preset, "dev_power", True), key="dev_power")
 dev_power_wind = dev_power_solar = dev_power_bess = dev_power_other = False
 dev_power_other_text = ""
 dev_power_wind_mw = dev_power_solar_mw = dev_power_bess_mw = dev_power_other_mw = ""
@@ -607,26 +667,26 @@ if dev_power:
         st.markdown("<div style='margin-left:20px'>", unsafe_allow_html=True)
         pc1, pc2, pc3, pc4 = st.columns(4)
         with pc1:
-            dev_power_wind = st.checkbox("Wind", value=preset_bool(preset, "dev_power_wind", False), key="dev_power_wind")
+            dev_power_wind = st.checkbox("Wind", value=safe_bool(preset, "dev_power_wind", False), key="dev_power_wind")
             if dev_power_wind:
                 dev_power_wind_mw = st.text_input("Wind — MW", placeholder="e.g. 150", value=preset_val(preset, "dev_power_wind_mw"), key="dev_power_wind_mw")
         with pc2:
-            dev_power_solar = st.checkbox("Solar Photovoltaic", value=preset_bool(preset, "dev_power_solar", False), key="dev_power_solar")
+            dev_power_solar = st.checkbox("Solar Photovoltaic", value=safe_bool(preset, "dev_power_solar", False), key="dev_power_solar")
             if dev_power_solar:
                 dev_power_solar_mw = st.text_input("Solar — MW", placeholder="e.g. 200", value=preset_val(preset, "dev_power_solar_mw"), key="dev_power_solar_mw")
         with pc3:
-            dev_power_bess = st.checkbox("Battery Energy Storage System", value=preset_bool(preset, "dev_power_bess", False), key="dev_power_bess")
+            dev_power_bess = st.checkbox("Battery Energy Storage System", value=safe_bool(preset, "dev_power_bess", False), key="dev_power_bess")
             if dev_power_bess:
                 dev_power_bess_mw = st.text_input("BESS — MW", placeholder="e.g. 100", value=preset_val(preset, "dev_power_bess_mw"), key="dev_power_bess_mw")
         with pc4:
-            dev_power_other = st.checkbox("Other (Power)", value=preset_bool(preset, "dev_power_other", False), key="dev_power_other")
+            dev_power_other = st.checkbox("Other (Power)", value=safe_bool(preset, "dev_power_other", False), key="dev_power_other")
             if dev_power_other:
                 dev_power_other_text = st.text_input("Other — Type", placeholder="e.g. Geothermal", value=preset_val(preset, "dev_power_other_text"), key="dev_power_other_text")
                 dev_power_other_mw = st.text_input("Other — MW", placeholder="e.g. 50", value=preset_val(preset, "dev_power_other_mw"), key="dev_power_other_mw")
         st.markdown("</div>", unsafe_allow_html=True)
 
 # ── Non-Power ──
-dev_nonpower = st.checkbox("Non-Power", value=preset_bool(preset, "dev_nonpower", False), key="dev_nonpower")
+dev_nonpower = st.checkbox("Non-Power", value=safe_bool(preset, "dev_nonpower", False), key="dev_nonpower")
 
 # Initialize all non-power fields
 dev_residential = dev_office = dev_commercial = dev_industrial = False
@@ -648,7 +708,7 @@ if dev_nonpower:
     with st.container():
         st.markdown("<div style='margin-left:20px'>", unsafe_allow_html=True)
 
-        dev_residential = st.checkbox("Residential", value=preset_bool(preset, "dev_residential", False), key="dev_residential")
+        dev_residential = st.checkbox("Residential", value=safe_bool(preset, "dev_residential", False), key="dev_residential")
         if dev_residential:
             rc1, rc2 = st.columns(2)
             with rc1:
@@ -656,7 +716,7 @@ if dev_nonpower:
             with rc2:
                 dev_residential_acres = st.text_input("Residential — Acres", placeholder="e.g. 12.5", value=preset_val(preset, "dev_residential_acres"), key="dev_residential_acres")
 
-        dev_office = st.checkbox("Office", value=preset_bool(preset, "dev_office", False), key="dev_office")
+        dev_office = st.checkbox("Office", value=safe_bool(preset, "dev_office", False), key="dev_office")
         if dev_office:
             oc1, oc2, oc3 = st.columns(3)
             with oc1:
@@ -666,7 +726,7 @@ if dev_nonpower:
             with oc3:
                 dev_office_emp = st.text_input("Office — Employees", placeholder="e.g. 180", value=preset_val(preset, "dev_office_emp"), key="dev_office_emp")
 
-        dev_commercial = st.checkbox("Commercial", value=preset_bool(preset, "dev_commercial", False), key="dev_commercial")
+        dev_commercial = st.checkbox("Commercial", value=safe_bool(preset, "dev_commercial", False), key="dev_commercial")
         if dev_commercial:
             cc1, cc2, cc3 = st.columns(3)
             with cc1:
@@ -676,7 +736,7 @@ if dev_nonpower:
             with cc3:
                 dev_commercial_emp = st.text_input("Commercial — Employees", placeholder="e.g. 75", value=preset_val(preset, "dev_commercial_emp"), key="dev_commercial_emp")
 
-        dev_industrial = st.checkbox("Industrial", value=preset_bool(preset, "dev_industrial", False), key="dev_industrial")
+        dev_industrial = st.checkbox("Industrial", value=safe_bool(preset, "dev_industrial", False), key="dev_industrial")
         if dev_industrial:
             ic1, ic2, ic3 = st.columns(3)
             with ic1:
@@ -686,15 +746,15 @@ if dev_nonpower:
             with ic3:
                 dev_industrial_emp = st.text_input("Industrial — Employees", placeholder="e.g. 50", value=preset_val(preset, "dev_industrial_emp"), key="dev_industrial_emp")
 
-        dev_educational = st.checkbox("Educational", value=preset_bool(preset, "dev_educational", False), key="dev_educational")
+        dev_educational = st.checkbox("Educational", value=safe_bool(preset, "dev_educational", False), key="dev_educational")
         if dev_educational:
             dev_educational_text = st.text_input("Educational — Details", placeholder="e.g. K-12 school, 800 students", value=preset_val(preset, "dev_educational_text"), key="dev_educational_text")
 
-        dev_recreational = st.checkbox("Recreational", value=preset_bool(preset, "dev_recreational", False), key="dev_recreational")
+        dev_recreational = st.checkbox("Recreational", value=safe_bool(preset, "dev_recreational", False), key="dev_recreational")
         if dev_recreational:
             dev_recreational_text = st.text_input("Recreational — Details", placeholder="e.g. Regional park, sports fields", value=preset_val(preset, "dev_recreational_text"), key="dev_recreational_text")
 
-        dev_water = st.checkbox("Water Facilities", value=preset_bool(preset, "dev_water", False), key="dev_water")
+        dev_water = st.checkbox("Water Facilities", value=safe_bool(preset, "dev_water", False), key="dev_water")
         if dev_water:
             wc1, wc2 = st.columns(2)
             with wc1:
@@ -702,15 +762,15 @@ if dev_nonpower:
             with wc2:
                 dev_water_mgd = st.text_input("Water Facilities — MGD", placeholder="e.g. 5.2", value=preset_val(preset, "dev_water_mgd"), key="dev_water_mgd")
 
-        dev_transportation = st.checkbox("Transportation", value=preset_bool(preset, "dev_transportation", False), key="dev_transportation")
+        dev_transportation = st.checkbox("Transportation", value=safe_bool(preset, "dev_transportation", False), key="dev_transportation")
         if dev_transportation:
             dev_transportation_type = st.text_input("Transportation — Type", placeholder="e.g. Highway, Rail, Airport", value=preset_val(preset, "dev_transportation_type"), key="dev_transportation_type")
 
-        dev_mining = st.checkbox("Mining", value=preset_bool(preset, "dev_mining", False), key="dev_mining")
+        dev_mining = st.checkbox("Mining", value=safe_bool(preset, "dev_mining", False), key="dev_mining")
         if dev_mining:
             dev_mining_mineral = st.text_input("Mining — Mineral", placeholder="e.g. Silica, Gravel", value=preset_val(preset, "dev_mining_mineral"), key="dev_mining_mineral")
 
-        dev_waste = st.checkbox("Waste Treatment", value=preset_bool(preset, "dev_waste", False), key="dev_waste")
+        dev_waste = st.checkbox("Waste Treatment", value=safe_bool(preset, "dev_waste", False), key="dev_waste")
         if dev_waste:
             wt1, wt2 = st.columns(2)
             with wt1:
@@ -718,11 +778,11 @@ if dev_nonpower:
             with wt2:
                 dev_waste_mgd = st.text_input("Waste Treatment — MGD", placeholder="e.g. 2.0", value=preset_val(preset, "dev_waste_mgd"), key="dev_waste_mgd")
 
-        dev_hazardous = st.checkbox("Hazardous Waste", value=preset_bool(preset, "dev_hazardous", False), key="dev_hazardous")
+        dev_hazardous = st.checkbox("Hazardous Waste", value=safe_bool(preset, "dev_hazardous", False), key="dev_hazardous")
         if dev_hazardous:
             dev_hazardous_type = st.text_input("Hazardous Waste — Type", placeholder="e.g. Medical, Chemical", value=preset_val(preset, "dev_hazardous_type"), key="dev_hazardous_type")
 
-        dev_other = st.checkbox("Other (Non-Power)", value=preset_bool(preset, "dev_other", False), key="dev_other")
+        dev_other = st.checkbox("Other (Non-Power)", value=safe_bool(preset, "dev_other", False), key="dev_other")
         if dev_other:
             dev_other_text = st.text_input("Other — Details", placeholder="Describe other development type", value=preset_val(preset, "dev_other_text"), key="dev_other_text")
 
@@ -740,46 +800,46 @@ st.subheader("Project Issues Discussed in Document")
 
 c1, c2, c3, c4 = st.columns(4)
 with c1:
-    issue_aesthetic = st.checkbox("Aesthetic", value=preset_bool(preset, "issue_aesthetic", True), key="issue_aesthetic")
-    issue_Agriculture_and_Forestry_Resources = st.checkbox("Agriculture and Forestry Resources", value=preset_bool(preset, "issue_Agriculture_and_Forestry_Resources", True), key="issue_Agriculture_and_Forestry_Resources")
-    issue_air_quality = st.checkbox("Air Quality", value=preset_bool(preset, "issue_air_quality", True), key="issue_air_quality")
-    issue_biological_resources = st.checkbox("Biological Resources", value=preset_bool(preset, "issue_biological_resources", True), key="issue_biological_resources")
-    issue_coastal_zone = st.checkbox("Coastal Zone", value=preset_bool(preset, "issue_coastal_zone", False), key="issue_coastal_zone")
-    issue_Cultural_Resources = st.checkbox("Cultural Resources", value=preset_bool(preset, "issue_Cultural_Resources", True), key="issue_Cultural_Resources")
-    issue_cumulative_effects = st.checkbox("Cumulative Effects", value=preset_bool(preset, "issue_cumulative_effects", True), key="issue_cumulative_effects")
-    issue_drainage_absorption = st.checkbox("Drainage/Absorption", value=preset_bool(preset, "issue_drainage_absorption", True), key="issue_drainage_absorption")
-    issue_economic_jobs = st.checkbox("Economic/Jobs", value=preset_bool(preset, "issue_economic_jobs", True), key="issue_economic_jobs")
+    issue_aesthetic = st.checkbox("Aesthetic", value=safe_bool(preset, "issue_aesthetic", True), key="issue_aesthetic")
+    issue_Agriculture_and_Forestry_Resources = st.checkbox("Agriculture and Forestry Resources", value=safe_bool(preset, "issue_Agriculture_and_Forestry_Resources", True), key="issue_Agriculture_and_Forestry_Resources")
+    issue_air_quality = st.checkbox("Air Quality", value=safe_bool(preset, "issue_air_quality", True), key="issue_air_quality")
+    issue_biological_resources = st.checkbox("Biological Resources", value=safe_bool(preset, "issue_biological_resources", True), key="issue_biological_resources")
+    issue_coastal_zone = st.checkbox("Coastal Zone", value=safe_bool(preset, "issue_coastal_zone", False), key="issue_coastal_zone")
+    issue_Cultural_Resources = st.checkbox("Cultural Resources", value=safe_bool(preset, "issue_Cultural_Resources", True), key="issue_Cultural_Resources")
+    issue_cumulative_effects = st.checkbox("Cumulative Effects", value=safe_bool(preset, "issue_cumulative_effects", True), key="issue_cumulative_effects")
+    issue_drainage_absorption = st.checkbox("Drainage/Absorption", value=safe_bool(preset, "issue_drainage_absorption", True), key="issue_drainage_absorption")
+    issue_economic_jobs = st.checkbox("Economic/Jobs", value=safe_bool(preset, "issue_economic_jobs", True), key="issue_economic_jobs")
 with c2:
-    issue_energy = st.checkbox("Energy", value=preset_bool(preset, "issue_energy", True), key="issue_energy")
-    issue_fiscal = st.checkbox("Fiscal Impacts", value=preset_bool(preset, "issue_fiscal", False), key="issue_fiscal")
-    issue_flood_plain_flooding = st.checkbox("Flood Plain/Flooding", value=preset_bool(preset, "issue_flood_plain_flooding", True), key="issue_flood_plain_flooding")
-    issue_geology_soils = st.checkbox("Geology/Soils", value=preset_bool(preset, "issue_geology_soils", True), key="issue_geology_soils")
-    issue_greenhouse_gas_emissions = st.checkbox("Greenhouse Gas Emissions", value=preset_bool(preset, "issue_greenhouse_gas_emissions", True), key="issue_greenhouse_gas_emissions")
-    issue_growth_inducement = st.checkbox("Growth Inducement", value=preset_bool(preset, "issue_growth_inducement", False), key="issue_growth_inducement")
-    issue_Hazards_Hazardous_Materials = st.checkbox("Hazards & Hazardous Materials", value=preset_bool(preset, "issue_Hazards_Hazardous_Materials", True), key="issue_Hazards_Hazardous_Materials")
-    issue_Hydrology_Water_Quality = st.checkbox("Hydrology/Water Quality", value=preset_bool(preset, "issue_Hydrology_Water_Quality", True), key="issue_Hydrology_Water_Quality")
-    issue_land_use_Planning = st.checkbox("Land Use Planning", value=preset_bool(preset, "issue_land_use_Planning", True), key="issue_land_use_Planning")
+    issue_energy = st.checkbox("Energy", value=safe_bool(preset, "issue_energy", True), key="issue_energy")
+    issue_fiscal = st.checkbox("Fiscal Impacts", value=safe_bool(preset, "issue_fiscal", False), key="issue_fiscal")
+    issue_flood_plain_flooding = st.checkbox("Flood Plain/Flooding", value=safe_bool(preset, "issue_flood_plain_flooding", True), key="issue_flood_plain_flooding")
+    issue_geology_soils = st.checkbox("Geology/Soils", value=safe_bool(preset, "issue_geology_soils", True), key="issue_geology_soils")
+    issue_greenhouse_gas_emissions = st.checkbox("Greenhouse Gas Emissions", value=safe_bool(preset, "issue_greenhouse_gas_emissions", True), key="issue_greenhouse_gas_emissions")
+    issue_growth_inducement = st.checkbox("Growth Inducement", value=safe_bool(preset, "issue_growth_inducement", False), key="issue_growth_inducement")
+    issue_Hazards_Hazardous_Materials = st.checkbox("Hazards & Hazardous Materials", value=safe_bool(preset, "issue_Hazards_Hazardous_Materials", True), key="issue_Hazards_Hazardous_Materials")
+    issue_Hydrology_Water_Quality = st.checkbox("Hydrology/Water Quality", value=safe_bool(preset, "issue_Hydrology_Water_Quality", True), key="issue_Hydrology_Water_Quality")
+    issue_land_use_Planning = st.checkbox("Land Use Planning", value=safe_bool(preset, "issue_land_use_Planning", True), key="issue_land_use_Planning")
     
 with c3:   
-    issue_Mandatory_Findings_of_Significance = st.checkbox("Mandatory Findings of Significance", value=preset_bool(preset, "issue_Mandatory_Findings_of_Significance", True), key="issue_Mandatory_Findings_of_Significance")
-    issue_mineral_resources = st.checkbox("Mineral Resources", value=preset_bool(preset, "issue_mineral_resources", True), key="issue_mineral_resources")
-    issue_noise = st.checkbox("Noise", value=preset_bool(preset, "issue_noise", True), key="issue_noise")
-    issue_population_housing_balance = st.checkbox("Population/Housing", value=preset_bool(preset, "issue_population_housing_balance", True), key="issue_population_housing_balance")
-    issue_public_services_facilities = st.checkbox("Public Services", value=preset_bool(preset, "issue_public_services_facilities", True), key="issue_public_services_facilities")
-    issue_recreation_parks = st.checkbox("Recreation", value=preset_bool(preset, "issue_recreation_parks", True), key="issue_recreation_parks")
-    issue_schools_universities = st.checkbox("Schools/Universities", value=preset_bool(preset, "issue_schools_universities", False), key="issue_schools_universities")
-    issue_septic_systems = st.checkbox("Septic System", value=preset_bool(preset, "issue_septic_systems", False), key="issue_septic_systems")
-    issue_sewer_capacity = st.checkbox("Sewer Capacity", value=preset_bool(preset, "issue_sewer_capacity", False), key="issue_sewer_capacity")
+    issue_Mandatory_Findings_of_Significance = st.checkbox("Mandatory Findings of Significance", value=safe_bool(preset, "issue_Mandatory_Findings_of_Significance", True), key="issue_Mandatory_Findings_of_Significance")
+    issue_mineral_resources = st.checkbox("Mineral Resources", value=safe_bool(preset, "issue_mineral_resources", True), key="issue_mineral_resources")
+    issue_noise = st.checkbox("Noise", value=safe_bool(preset, "issue_noise", True), key="issue_noise")
+    issue_population_housing_balance = st.checkbox("Population/Housing", value=safe_bool(preset, "issue_population_housing_balance", True), key="issue_population_housing_balance")
+    issue_public_services_facilities = st.checkbox("Public Services", value=safe_bool(preset, "issue_public_services_facilities", True), key="issue_public_services_facilities")
+    issue_recreation_parks = st.checkbox("Recreation", value=safe_bool(preset, "issue_recreation_parks", True), key="issue_recreation_parks")
+    issue_schools_universities = st.checkbox("Schools/Universities", value=safe_bool(preset, "issue_schools_universities", False), key="issue_schools_universities")
+    issue_septic_systems = st.checkbox("Septic System", value=safe_bool(preset, "issue_septic_systems", False), key="issue_septic_systems")
+    issue_sewer_capacity = st.checkbox("Sewer Capacity", value=safe_bool(preset, "issue_sewer_capacity", False), key="issue_sewer_capacity")
     
 with c4:
     
-    issue_solid_waste = st.checkbox("Solid Waste", value=preset_bool(preset, "issue_solid_waste", True), key="issue_solid_waste")
-    issue_Transportation = st.checkbox("Transportation", value=preset_bool(preset, "issue_Transportation", True), key="issue_Transportation")
-    issue_tribal_cultural_resources = st.checkbox("Tribal Cultural Resources", value=preset_bool(preset, "issue_tribal_cultural_resources", True), key="issue_tribal_cultural_resources")
-    issue_Utilities_Service_Systems = st.checkbox("Utilities/Service Systems", value=preset_bool(preset, "issue_Utilities_Service_Systems", True), key="issue_Utilities_Service_Systems")
-    issue_vegetation = st.checkbox("Vegetation", value=preset_bool(preset, "issue_vegetation", False), key="issue_vegetation")
-    issue_wetland_riparian = st.checkbox("Wetland/Riparian", value=preset_bool(preset, "issue_wetland_riparian", True), key="issue_wetland_riparian")
-    issue_Wildfire = st.checkbox("Wildfire", value=preset_bool(preset, "issue_Wildfire", True), key="issue_Wildfire")
+    issue_solid_waste = st.checkbox("Solid Waste", value=safe_bool(preset, "issue_solid_waste", True), key="issue_solid_waste")
+    issue_Transportation = st.checkbox("Transportation", value=safe_bool(preset, "issue_Transportation", True), key="issue_Transportation")
+    issue_tribal_cultural_resources = st.checkbox("Tribal Cultural Resources", value=safe_bool(preset, "issue_tribal_cultural_resources", True), key="issue_tribal_cultural_resources")
+    issue_Utilities_Service_Systems = st.checkbox("Utilities/Service Systems", value=safe_bool(preset, "issue_Utilities_Service_Systems", True), key="issue_Utilities_Service_Systems")
+    issue_vegetation = st.checkbox("Vegetation", value=safe_bool(preset, "issue_vegetation", False), key="issue_vegetation")
+    issue_wetland_riparian = st.checkbox("Wetland/Riparian", value=safe_bool(preset, "issue_wetland_riparian", True), key="issue_wetland_riparian")
+    issue_Wildfire = st.checkbox("Wildfire", value=safe_bool(preset, "issue_Wildfire", True), key="issue_Wildfire")
 
 st.divider()
 
@@ -808,59 +868,59 @@ st.subheader("Reviewing Agencies Checklist")
 col_l, col_r = st.columns(2)
 
 with col_l:
-    ra_air = st.checkbox("Air Resources Board", value=preset_bool(preset, "ra_air", True), key="ra_air")
-    ra_boating = st.checkbox("Boating & Waterways, Department of", value=preset_bool(preset, "ra_boating", False), key="ra_boating")
-    ra_cal_ema = st.checkbox("California Emergency Management Agency", value=preset_bool(preset, "ra_cal_ema", True), key="ra_cal_ema")
-    ra_chp = st.checkbox("California Highway Patrol", value=preset_bool(preset, "ra_chp", True), key="ra_chp")
-    ra_caltrans_dist = st.checkbox("Caltrans District #n", value=preset_bool(preset, "ra_caltrans_dist", True), key="ra_caltrans_dist")
+    ra_air = st.checkbox("Air Resources Board", value=safe_bool(preset, "ra_air", True), key="ra_air")
+    ra_boating = st.checkbox("Boating & Waterways, Department of", value=safe_bool(preset, "ra_boating", False), key="ra_boating")
+    ra_cal_ema = st.checkbox("California Emergency Management Agency", value=safe_bool(preset, "ra_cal_ema", True), key="ra_cal_ema")
+    ra_chp = st.checkbox("California Highway Patrol", value=safe_bool(preset, "ra_chp", True), key="ra_chp")
+    ra_caltrans_dist = st.checkbox("Caltrans District #n", value=safe_bool(preset, "ra_caltrans_dist", True), key="ra_caltrans_dist")
     ra_caltrans_dist_n = ""
     if ra_caltrans_dist:
         ra_caltrans_dist_n = st.text_input("Caltrans District Number :red[*]", placeholder="e.g. 7", value=preset_val(preset, "ra_caltrans_dist_n"), key="ra_caltrans_dist_n")
-    ra_caltrans_aero = st.checkbox("Caltrans Division of Aeronautics", value=preset_bool(preset, "ra_caltrans_aero", False), key="ra_caltrans_aero")
-    ra_caltrans_plan = st.checkbox("Caltrans Planning", value=preset_bool(preset, "ra_caltrans_plan", True), key="ra_caltrans_plan")
-    ra_cvfpb = st.checkbox("Central Valley Flood Protection Board", value=preset_bool(preset, "ra_cvfpb", False), key="ra_cvfpb")
-    ra_coachella = st.checkbox("Coachella Valley Mtns. Conservancy", value=preset_bool(preset, "ra_coachella", False), key="ra_coachella")
-    ra_coastal = st.checkbox("Coastal Commission", value=preset_bool(preset, "ra_coastal", False), key="ra_coastal")
-    ra_colorado = st.checkbox("Colorado River Board", value=preset_bool(preset, "ra_colorado", False), key="ra_colorado")
-    ra_conservation = st.checkbox("Conservation, Department of", value=preset_bool(preset, "ra_conservation", True), key="ra_conservation")
-    ra_corrections = st.checkbox("Corrections, Department of", value=preset_bool(preset, "ra_corrections", False), key="ra_corrections")
-    ra_delta = st.checkbox("Delta Protection Commission", value=preset_bool(preset, "ra_delta", False), key="ra_delta")
-    ra_education = st.checkbox("Education, Department of", value=preset_bool(preset, "ra_education", False), key="ra_education")
-    ra_energy = st.checkbox("Energy Commission", value=preset_bool(preset, "ra_energy", True), key="ra_energy")
-    ra_fish = st.checkbox("Fish & Game Region #n", value=preset_bool(preset, "ra_fish", True), key="ra_fish")
+    ra_caltrans_aero = st.checkbox("Caltrans Division of Aeronautics", value=safe_bool(preset, "ra_caltrans_aero", False), key="ra_caltrans_aero")
+    ra_caltrans_plan = st.checkbox("Caltrans Planning", value=safe_bool(preset, "ra_caltrans_plan", True), key="ra_caltrans_plan")
+    ra_cvfpb = st.checkbox("Central Valley Flood Protection Board", value=safe_bool(preset, "ra_cvfpb", False), key="ra_cvfpb")
+    ra_coachella = st.checkbox("Coachella Valley Mtns. Conservancy", value=safe_bool(preset, "ra_coachella", False), key="ra_coachella")
+    ra_coastal = st.checkbox("Coastal Commission", value=safe_bool(preset, "ra_coastal", False), key="ra_coastal")
+    ra_colorado = st.checkbox("Colorado River Board", value=safe_bool(preset, "ra_colorado", False), key="ra_colorado")
+    ra_conservation = st.checkbox("Conservation, Department of", value=safe_bool(preset, "ra_conservation", True), key="ra_conservation")
+    ra_corrections = st.checkbox("Corrections, Department of", value=safe_bool(preset, "ra_corrections", False), key="ra_corrections")
+    ra_delta = st.checkbox("Delta Protection Commission", value=safe_bool(preset, "ra_delta", False), key="ra_delta")
+    ra_education = st.checkbox("Education, Department of", value=safe_bool(preset, "ra_education", False), key="ra_education")
+    ra_energy = st.checkbox("Energy Commission", value=safe_bool(preset, "ra_energy", True), key="ra_energy")
+    ra_fish = st.checkbox("Fish & Game Region #n", value=safe_bool(preset, "ra_fish", True), key="ra_fish")
     ra_fish_n = ""
     if ra_fish:
         ra_fish_n = st.text_input("Fish & Game Region Number :red[*]", placeholder="e.g. 4", value=preset_val(preset, "ra_fish_n"), key="ra_fish_n")
-    ra_food = st.checkbox("Food & Agriculture, Department of", value=preset_bool(preset, "ra_food", False), key="ra_food")
-    ra_forestry = st.checkbox("Forestry and Fire Protection, Department of", value=preset_bool(preset, "ra_forestry", True), key="ra_forestry")
-    ra_general_svc = st.checkbox("General Services, Department of", value=preset_bool(preset, "ra_general_svc", False), key="ra_general_svc")
-    ra_health = st.checkbox("Health Services, Department of", value=preset_bool(preset, "ra_health", False), key="ra_health")
-    ra_housing = st.checkbox("Housing & Community Development", value=preset_bool(preset, "ra_housing", False), key="ra_housing")
-    ra_nahc = st.checkbox("Native American Heritage Commission", value=preset_bool(preset, "ra_nahc", True), key="ra_nahc")
+    ra_food = st.checkbox("Food & Agriculture, Department of", value=safe_bool(preset, "ra_food", False), key="ra_food")
+    ra_forestry = st.checkbox("Forestry and Fire Protection, Department of", value=safe_bool(preset, "ra_forestry", True), key="ra_forestry")
+    ra_general_svc = st.checkbox("General Services, Department of", value=safe_bool(preset, "ra_general_svc", False), key="ra_general_svc")
+    ra_health = st.checkbox("Health Services, Department of", value=safe_bool(preset, "ra_health", False), key="ra_health")
+    ra_housing = st.checkbox("Housing & Community Development", value=safe_bool(preset, "ra_housing", False), key="ra_housing")
+    ra_nahc = st.checkbox("Native American Heritage Commission", value=safe_bool(preset, "ra_nahc", True), key="ra_nahc")
 
 with col_r:
-    ra_ohp = st.checkbox("Office of Historic Preservation", value=preset_bool(preset, "ra_ohp", True), key="ra_ohp")
-    ra_opsc = st.checkbox("Office of Public School Construction", value=preset_bool(preset, "ra_opsc", False), key="ra_opsc")
-    ra_parks = st.checkbox("Parks & Recreation, Department of", value=preset_bool(preset, "ra_parks", False), key="ra_parks")
-    ra_pesticide = st.checkbox("Pesticide Regulation, Department of", value=preset_bool(preset, "ra_pesticide", False), key="ra_pesticide")
-    ra_puc = st.checkbox("Public Utilities Commission", value=preset_bool(preset, "ra_puc", True), key="ra_puc")
-    ra_wqcb = st.checkbox("Regional WQCB #n", value=preset_bool(preset, "ra_wqcb", True), key="ra_wqcb")
+    ra_ohp = st.checkbox("Office of Historic Preservation", value=safe_bool(preset, "ra_ohp", True), key="ra_ohp")
+    ra_opsc = st.checkbox("Office of Public School Construction", value=safe_bool(preset, "ra_opsc", False), key="ra_opsc")
+    ra_parks = st.checkbox("Parks & Recreation, Department of", value=safe_bool(preset, "ra_parks", False), key="ra_parks")
+    ra_pesticide = st.checkbox("Pesticide Regulation, Department of", value=safe_bool(preset, "ra_pesticide", False), key="ra_pesticide")
+    ra_puc = st.checkbox("Public Utilities Commission", value=safe_bool(preset, "ra_puc", True), key="ra_puc")
+    ra_wqcb = st.checkbox("Regional WQCB #n", value=safe_bool(preset, "ra_wqcb", True), key="ra_wqcb")
     ra_wqcb_n = ""
     if ra_wqcb:
         ra_wqcb_n = st.text_input("Regional WQCB Number :red[*]", placeholder="e.g. 5", value=preset_val(preset, "ra_wqcb_n"), key="ra_wqcb_n")
-    ra_resources = st.checkbox("Resources Agency", value=preset_bool(preset, "ra_resources", True), key="ra_resources")
-    ra_recycling = st.checkbox("Resources Recycling and Recovery, Department of", value=preset_bool(preset, "ra_recycling", False), key="ra_recycling")
-    ra_sfbay = st.checkbox("S.F. Bay Conservation & Development Comm.", value=preset_bool(preset, "ra_sfbay", False), key="ra_sfbay")
-    ra_san_gabriel = st.checkbox("San Gabriel & Lower L.A. Rivers & Mtns. Conservancy", value=preset_bool(preset, "ra_san_gabriel", False), key="ra_san_gabriel")
-    ra_san_joaquin = st.checkbox("San Joaquin River Conservancy", value=preset_bool(preset, "ra_san_joaquin", False), key="ra_san_joaquin")
-    ra_santa_monica = st.checkbox("Santa Monica Mtns. Conservancy", value=preset_bool(preset, "ra_santa_monica", False), key="ra_santa_monica")
-    ra_state_lands = st.checkbox("State Lands Commission", value=preset_bool(preset, "ra_state_lands", False), key="ra_state_lands")
-    ra_swrcb_cwg = st.checkbox("SWRCB: Clean Water Grants", value=preset_bool(preset, "ra_swrcb_cwg", False), key="ra_swrcb_cwg")
-    ra_swrcb_wq = st.checkbox("SWRCB: Water Quality", value=preset_bool(preset, "ra_swrcb_wq", True), key="ra_swrcb_wq")
-    ra_swrcb_wr = st.checkbox("SWRCB: Water Rights", value=preset_bool(preset, "ra_swrcb_wr", True), key="ra_swrcb_wr")
-    ra_tahoe = st.checkbox("Tahoe Regional Planning Agency", value=preset_bool(preset, "ra_tahoe", False), key="ra_tahoe")
-    ra_toxic = st.checkbox("Toxic Substances Control, Department of", value=preset_bool(preset, "ra_toxic", True), key="ra_toxic")
-    ra_water_res = st.checkbox("Water Resources, Department of", value=preset_bool(preset, "ra_water_res", True), key="ra_water_res")
+    ra_resources = st.checkbox("Resources Agency", value=safe_bool(preset, "ra_resources", True), key="ra_resources")
+    ra_recycling = st.checkbox("Resources Recycling and Recovery, Department of", value=safe_bool(preset, "ra_recycling", False), key="ra_recycling")
+    ra_sfbay = st.checkbox("S.F. Bay Conservation & Development Comm.", value=safe_bool(preset, "ra_sfbay", False), key="ra_sfbay")
+    ra_san_gabriel = st.checkbox("San Gabriel & Lower L.A. Rivers & Mtns. Conservancy", value=safe_bool(preset, "ra_san_gabriel", False), key="ra_san_gabriel")
+    ra_san_joaquin = st.checkbox("San Joaquin River Conservancy", value=safe_bool(preset, "ra_san_joaquin", False), key="ra_san_joaquin")
+    ra_santa_monica = st.checkbox("Santa Monica Mtns. Conservancy", value=safe_bool(preset, "ra_santa_monica", False), key="ra_santa_monica")
+    ra_state_lands = st.checkbox("State Lands Commission", value=safe_bool(preset, "ra_state_lands", False), key="ra_state_lands")
+    ra_swrcb_cwg = st.checkbox("SWRCB: Clean Water Grants", value=safe_bool(preset, "ra_swrcb_cwg", False), key="ra_swrcb_cwg")
+    ra_swrcb_wq = st.checkbox("SWRCB: Water Quality", value=safe_bool(preset, "ra_swrcb_wq", True), key="ra_swrcb_wq")
+    ra_swrcb_wr = st.checkbox("SWRCB: Water Rights", value=safe_bool(preset, "ra_swrcb_wr", True), key="ra_swrcb_wr")
+    ra_tahoe = st.checkbox("Tahoe Regional Planning Agency", value=safe_bool(preset, "ra_tahoe", False), key="ra_tahoe")
+    ra_toxic = st.checkbox("Toxic Substances Control, Department of", value=safe_bool(preset, "ra_toxic", True), key="ra_toxic")
+    ra_water_res = st.checkbox("Water Resources, Department of", value=safe_bool(preset, "ra_water_res", True), key="ra_water_res")
     ra_other_1 = st.text_input("Other Agency 1", placeholder="e.g. County Planning Department", value=preset_val(preset, "ra_other_1"), key="ra_other_1")
     ra_other_2 = st.text_input("Other Agency 2", placeholder="e.g. Local Air District", value=preset_val(preset, "ra_other_2"), key="ra_other_2")
 
