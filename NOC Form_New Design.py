@@ -266,7 +266,7 @@ if st.button("Test ODS values"):
         st.error(f"Error reading ODS: {e}")
 
 
-f st.button("Clean ODS values (preview only)"):
+if st.button("Clean ODS values (preview only)"):
     import pandas as pd
     df = pd.read_excel("project_data.ods", engine="odf", dtype=object)
     cleaned = []
