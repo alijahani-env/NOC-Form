@@ -1,8 +1,4 @@
 
-if st.button("Test ODS values"):
-    import pandas as pd
-    df = pd.read_excel("project_data.ods", engine="odf", dtype=object)
-    st.write("Column values for issue_Cultural_Resources:")
 
 import io
 import os
@@ -258,6 +254,17 @@ def apply_preset_to_session(project_title):
 # ── Page setup ────────────────────────────────────────────────────────────────
 
 st.set_page_config(page_title="Notice of Completion Generator", layout="centered")
+
+# --- DEBUG BUTTON TO INSPECT ODS COLUMN ---
+if st.button("Test ODS values"):
+    import pandas as pd
+    try:
+        df = pd.read_excel("project_data.ods", engine="odf", dtype=object)
+        st.write("Column values for issue_Cultural_Resources:")
+        st.write(df["issue_Cultural_Resources"].apply(repr).tolist())
+    except Exception as e:
+        st.error(f"Error reading ODS: {e}")
+
 
 st.markdown("""
 <style>
