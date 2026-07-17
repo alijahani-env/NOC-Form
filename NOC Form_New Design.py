@@ -264,20 +264,39 @@ def apply_preset_to_session(project_title):
         st.session_state["_loaded_project_title"] = ""
         return {}
     for key, value in preset.items():
-        if key == "project_title":
-            continue
-        target_key = FIELD_KEY_MAP.get(key, key)
-        if key in BOOLEAN_FIELDS:
-            st.session_state[target_key] = parse_bool(value, False)
-        elif key in DATE_FIELDS:
-            parsed_date = parse_date_value(value)
-            st.session_state[target_key] = parsed_date
-            if key == "review_start":
-                st.session_state.date_start = parsed_date
-            elif key == "review_end":
-                st.session_state.date_end = parsed_date
-        else:
-            st.session_state[target_key] = clean_scalar(value, "")
+    if key == "project_title":
+        continue
+
+    target_key = FIELD_KEY_MAP.get(key, key)
+
+    # UNIVERSAL CLEANING HERE
+    if isinstance(value, str):
+        value = (
+            value.replace("‘", "")
+                 .replace("’", "")
+                 .replace("“", "")
+                 .replace("”", "")
+                 .replace("'", "")
+                 .strip()
+                 .lower()
+        )
+
+    # BOOLEAN FIX
+    if key in BOOLEAN_FIELDS:
+        st.session_state[target_key] = parse_bool(value, False)
+
+    # DATE FIX
+    elif key in DATE_FIELDS:
+        parsed_date = parse_date_value(value)
+        st.session_state[target_key] = parsed_date
+        if key == "review_start":
+            st.session_state.date_start = parsed_date
+        elif key == "review_end":
+            st.session_state.date_end = parsed_date
+
+    # NORMAL FIELDS
+    else:
+        st.session_state[target_key] = clean_scalar(value, "")
     if clean_scalar(preset.get("contact_name"), ""):
         st.session_state["contact_name"] = clean_scalar(preset.get("contact_name"), "")
     st.session_state["_loaded_project_title"] = project_title
