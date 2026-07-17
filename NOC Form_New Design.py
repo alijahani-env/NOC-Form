@@ -266,16 +266,26 @@ if st.button("Test ODS values"):
         st.error(f"Error reading ODS: {e}")
 
 
+
 if st.button("Clean ODS values (preview only)"):
     import pandas as pd
     df = pd.read_excel("project_data.ods", engine="odf", dtype=object)
+    
     cleaned = []
     for v in df["issue_Cultural_Resources"]:
         if isinstance(v, str):
-            cleaned.append(v.replace("'", "").replace("‘","").replace("’","").replace("“","").replace("”",""))
+            cleaned.append(
+                v.replace("'", "")
+                 .replace("‘", "")
+                 .replace("’", "")
+                 .replace("“", "")
+                 .replace("”", "")
+                 .strip()
+                 .lower()
+            )
         else:
             cleaned.append(v)
-    st.write(cleaned)
+
 
 
 
