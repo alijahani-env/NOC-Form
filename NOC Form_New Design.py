@@ -204,8 +204,14 @@ def load_presets():
                     row_dict[key] = clean_scalar(raw_value, "")
             title = clean_scalar(row_dict.get("project_title", ""), "")
             if title:
-                presets[title] = row_dict
-        return presets
+            presets[title] = row_dict
+
+    # CLEAN ALL FIELDS BEFORE RETURNING
+    for title, row in presets.items():
+        for key in row.keys():
+            row[key] = clean_ods_row(row[key])
+
+    return presets
     except Exception as e:
         st.error(f"Failed to load project presets from ODS: {e}")
         return {}
@@ -260,6 +266,8 @@ def apply_preset_to_session(project_title):
         return preset
     if not project_title:
         st.session_state["_loaded_project_title"] = ""
+        for key in preset.keys():
+            preset[key] = clean_ods_row(preset[key])
         return {}
     for key, value in preset.items():
         if key == "project_title":
