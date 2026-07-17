@@ -244,8 +244,7 @@ FIELD_KEY_MAP = {
 
 def apply_preset_to_session(project_title):
     preset = PRESETS.get(project_title, {})
-    if st.session_state.get("_loaded_project_title") == project_title:
-        return preset
+    
     
     if not project_title:
         st.session_state["_loaded_project_title"] = ""
@@ -492,7 +491,7 @@ st.divider()
 
 st.subheader("Overview")
 
-project_title = st.selectbox("Project Title", options=[""] + PROJECT_TITLES, key="project_title")
+project_title = st.selectbox("Project Title", options=[""] + PROJECT_TITLES)
 preset = apply_preset_to_session(project_title)
 
 preset_contact = preset_val(preset, "contact_name")
