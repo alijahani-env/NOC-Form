@@ -1,3 +1,9 @@
+
+if st.button("Test ODS values"):
+    import pandas as pd
+    df = pd.read_excel("project_data.ods", engine="odf", dtype=object)
+    st.write("Column values for issue_Cultural_Resources:")
+
 import io
 import os
 import streamlit as st
