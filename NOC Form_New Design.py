@@ -167,17 +167,17 @@ def load_presets():
                     continue
 
  if key in BOOLEAN_FIELDS:
-                if isinstance(raw_value, str):
-                    raw_value = (
-                        raw_value.replace("'", "")
-                                 .replace("‘", "")
-                                 .replace("’", "")
-                                 .replace("“", "")
-                                 .replace("”", "")
-                                 .strip()
-                                 .lower()
-                    )
-                row_dict[key] = parse_bool(raw_value, False)
+        if isinstance(raw_value, str):
+            raw_value = (
+                raw_value.replace("'", "")
+                         .replace("‘", "")
+                         .replace("’", "")
+                         .replace("“", "")
+                         .replace("”", "")
+                         .strip()
+                         .lower()
+            )
+        row_dict[key] = parse_bool(raw_value, False)
 
     
                 elif key in DATE_FIELDS:
