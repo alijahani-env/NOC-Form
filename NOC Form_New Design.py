@@ -166,7 +166,7 @@ def load_presets():
                 if not key:
                     continue
 
- if key in BOOLEAN_FIELDS:
+     if key in BOOLEAN_FIELDS:
         if isinstance(raw_value, str):
             raw_value = (
                 raw_value.replace("'", "")
