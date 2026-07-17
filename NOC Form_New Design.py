@@ -204,7 +204,7 @@ def load_presets():
                     row_dict[key] = clean_scalar(raw_value, "")
             title = clean_scalar(row_dict.get("project_title", ""), "")
             if title:
-            presets[title] = row_dict
+                presets[title] = row_dict
 
     # CLEAN ALL FIELDS BEFORE RETURNING
     for title, row in presets.items():
