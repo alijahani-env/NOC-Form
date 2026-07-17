@@ -279,8 +279,8 @@ if st.button("Test ODS values"):
     import pandas as pd
     try:
         df = pd.read_excel("project_data.ods", engine="odf", dtype=object)
-        st.write("Column values for issue_Cultural_Resources:")
-        st.write(df["issue_Cultural_Resources"].apply(repr).tolist())
+        st.write("Column values for issue_energy:")
+        st.write(df["issue_energy"].apply(repr).tolist())
     except Exception as e:
         st.error(f"Error reading ODS: {e}")
 
