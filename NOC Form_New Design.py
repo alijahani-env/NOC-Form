@@ -266,6 +266,19 @@ if st.button("Test ODS values"):
         st.error(f"Error reading ODS: {e}")
 
 
+f st.button("Clean ODS values (preview only)"):
+    import pandas as pd
+    df = pd.read_excel("project_data.ods", engine="odf", dtype=object)
+    cleaned = []
+    for v in df["issue_Cultural_Resources"]:
+        if isinstance(v, str):
+            cleaned.append(v.replace("'", "").replace("‘","").replace("’","").replace("“","").replace("”",""))
+        else:
+            cleaned.append(v)
+    st.write(cleaned)
+
+
+
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Georgia&display=swap');
