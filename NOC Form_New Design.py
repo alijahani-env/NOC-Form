@@ -184,7 +184,9 @@ def load_presets():
                 return v2
             return v
 
-        df = df.applymap(clean_value)
+        for c in df.columns:
+            df[c] = df[c].apply(clean_value)
+        
 
         # Fix boolean fields
         for bf in BOOLEAN_FIELDS:
