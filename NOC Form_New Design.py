@@ -258,47 +258,62 @@ FIELD_KEY_MAP = {
 
 def apply_preset_to_session(project_title):
     preset = PRESETS.get(project_title, {})
+
+    # Prevent double-loading the same project
     if st.session_state.get("_loaded_project_title") == project_title:
         return preset
+
+    # Clear loaded marker if no project selected
     if not project_title:
         st.session_state["_loaded_project_title"] = ""
         return {}
+
+    # Loop through all fields in the preset
     for key, value in preset.items():
-    if key == "project_title":
-        continue
 
-    target_key = FIELD_KEY_MAP.get(key, key)
+        if key == "project_title":
+            continue
 
-    # UNIVERSAL CLEANING HERE
-    if isinstance(value, str):
-        value = (
-            value.replace("‘", "")
-                 .replace("’", "")
-                 .replace("“", "")
-                 .replace("”", "")
-                 .replace("'", "")
-                 .strip()
-                 .lower()
-        )
+        target_key = FIELD_KEY_MAP.get(key, key)
 
-    # BOOLEAN FIX
-    if key in BOOLEAN_FIELDS:
-        st.session_state[target_key] = parse_bool(value, False)
+        # UNIVERSAL CLEANER
+        if isinstance(value, str):
+            value = (
+                value.replace("‘", "")
+                     .replace("’", "")
+                     .replace("“", "")
+                     .replace("”", "")
+                     .replace("'", "")
+                     .strip()
+                     .lower()
+            )
 
-    # DATE FIX
-    elif key in DATE_FIELDS:
-        parsed_date = parse_date_value(value)
-        st.session_state[target_key] = parsed_date
-        if key == "review_start":
-            st.session_state.date_start = parsed_date
-        elif key == "review_end":
-            st.session_state.date_end = parsed_date
+        # BOOLEAN FIX
+        if key in BOOLEAN_FIELDS:
+            st.session_state[target_key] = parse_bool(value, False)
+            continue
 
-    # NORMAL FIELDS
-    else:
+        # DATE FIX
+        if key in DATE_FIELDS:
+            parsed_date = parse_date_value(value)
+            st.session_state[target_key] = parsed_date
+
+            # Sync start and end dates
+            if key == "review_start":
+                st.session_state.date_start = parsed_date
+            elif key == "review_end":
+                st.session_state.date_end = parsed_date
+
+            continue
+
+        # NORMAL TEXT FIELDS
         st.session_state[target_key] = clean_scalar(value, "")
-    if clean_scalar(preset.get("contact_name"), ""):
+
+    # CONTACT NAME special-case
+    if clean_scalar(preset.get("contact_name", ""), ""):
         st.session_state["contact_name"] = clean_scalar(preset.get("contact_name"), "")
+
+    # Mark project as loaded
     st.session_state["_loaded_project_title"] = project_title
     return preset
 
