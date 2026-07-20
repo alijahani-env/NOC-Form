@@ -40,7 +40,7 @@ BOOLEAN_FIELDS = {
     "dev_nonpower", "dev_residential", "dev_office", "dev_commercial", "dev_industrial", "dev_educational",
     "dev_recreational", "dev_water", "dev_transportation", "dev_mining", "dev_waste", "dev_hazardous",
     "dev_other", "issue_aesthetic", "issue_Agriculture_and_Forestry_Resources", "issue_air_quality",
-    "issue_biological_resources", "issue_coastal_zone", issue_Cultural_Resources, "issue_cumulative_effects",
+    "issue_biological_resources", "issue_coastal_zone", "issue_Cultural_Resources", "issue_cumulative_effects",
     "issue_drainage_absorption", "issue_economic_jobs", "issue_energy", "issue_fiscal",
     "issue_flood_plain_flooding", "issue_geology_soils", "issue_greenhouse_gas_emissions", "issue_growth_inducement", "issue_Hazards_Hazardous_Materials", 
     "issue_Hydrology_Water_Quality", "issue_land_use_Planning", "issue_Mandatory_Findings_of_Significance", "issue_mineral_resources",
