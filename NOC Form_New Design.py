@@ -164,7 +164,7 @@ def load_presets():
             row_dict = {}
            
 # UNIVERSAL CLEANER (works for ALL your fields automatically)
-            raw_row = {k: (str(v).replace("'", "").replace("‘","").replace("’","").replace("“","").replace("”","").strip().lower()
+            raw_row = {k: (str(v).replace("'", "").replace("‘","").replace("’","").replace("“","").replace("”","").strip()
                            if isinstance(v, str) else v)
                        for k, v in raw_row.items()}
 
