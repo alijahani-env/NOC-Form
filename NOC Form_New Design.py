@@ -181,7 +181,6 @@ def load_presets():
                                      .replace("“", "")
                                      .replace("”", "")
                                      .strip()
-                                     .lower()
                         )
                     row_dict[key] = parse_bool(raw_value, False)
 
@@ -306,7 +305,6 @@ if st.button("Clean ODS values (preview only)"):
                  .replace("“", "")
                  .replace("”", "")
                  .strip()
-                 .lower()
             )
         else:
             cleaned.append(v)
