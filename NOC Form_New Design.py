@@ -143,15 +143,15 @@ def load_presets():
     base_dir = os.getcwd()
     
       
-    candidate_paths = [os.path.join(base_dir, "project_data.ods"), os.path.join(base_dir, "project_data(5).ods")]
+    candidate_paths = [os.path.join(base_dir, "project_data1.csv"), os.path.join(base_dir, "project_data(5).ods")]
     candidate_paths.extend(
         os.path.join(base_dir, name)
         for name in sorted(os.listdir(base_dir))
-        if name.lower().endswith(".ods")
+        if name.lower().endswith(".csv")
     )
     ods_path = next((path for path in candidate_paths if os.path.exists(path)), None)
     if not ods_path:
-        st.warning(f"No project_data ODS file found in: {base_dir}")
+        st.warning(f"No project_data1 CSV file found in: {base_dir}")
         return {}
     try:
         df = pd.read_excel(ods_path, engine="odf", dtype=object)
@@ -283,7 +283,7 @@ PROJECT_TITLES = list(PRESETS.keys()) if PRESETS else []
 if st.button("Test ODS values"):
     import pandas as pd
     try:
-        df = pd.read_excel("project_data.ods", engine="odf", dtype=object)
+        df = pd.read_excel("project_data1.csv", engine="odf", dtype=object)
         st.write("Column values for issue_Cultural_Resources:")
         st.write(df["issue_Cultural_Resources"].apply(repr).tolist())
     except Exception as e:
@@ -293,7 +293,7 @@ if st.button("Test ODS values"):
 
 if st.button("Clean ODS values (preview only)"):
     import pandas as pd
-    df = pd.read_excel("project_data.ods", engine="odf", dtype=object)
+    df = pd.read_excel("project_data1.csv", engine="odf", dtype=object)
     
     cleaned = []
     for v in df["issue_Cultural_Resources"]:
