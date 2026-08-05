@@ -311,6 +311,13 @@ if st.button("Clean ODS values (preview only)"):
             cleaned.append(v)
 
 
+st.download_button(
+    "Download updated CSV",
+    data=open("project_data1.csv", "rb").read(),
+    file_name="project_data1.csv",
+    mime="text/csv"
+)
+
 
 
 st.markdown("""
