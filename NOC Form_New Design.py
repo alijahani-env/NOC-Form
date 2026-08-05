@@ -1526,6 +1526,42 @@ def generate_pdf():
 
 # ── Generate button ───────────────────────────────────────────────────────────
 
+import pandas as pd
+
+def save_back_to_csv():
+    csv_path = "project_data1.csv"
+
+    # Load existing CSV (try UTF‑8, fallback to cp1252)
+    try:
+        df = pd.read_csv(csv_path, dtype=object, encoding="utf-8")
+    except:
+        df = pd.read_csv(csv_path, dtype=object, encoding="cp1252")
+
+    # Identify the row to update
+    title = st.session_state.get("project_title", "")
+    if not title:
+        st.error("Project title is empty — cannot save changes.")
+        return
+
+    row_index = df.index[df["project_title"] == title]
+
+    if len(row_index) == 0:
+        st.error("Project title not found in CSV — cannot save changes.")
+        return
+
+    idx = row_index[0]
+
+    # Overwrite all columns that exist both in CSV and session_state
+    for col in df.columns:
+        if col in st.session_state:
+            df.at[idx, col] = st.session_state[col]
+
+    # Write CSV back to disk
+    df.to_csv(csv_path, index=False, encoding="utf-8")
+
+    st.success("✓ All form changes saved into project_data1.csv.")
+
+
 if st.button("Generate PDF", type="primary", use_container_width=True):
     validation_errors = []
     if ra_caltrans_dist and not ra_caltrans_dist_n.strip():
@@ -1540,6 +1576,10 @@ if st.button("Generate PDF", type="primary", use_container_width=True):
     else:
         pdf_buffer = generate_pdf()
         st.success("PDF generated — only checked items will appear in the document.")
+        
+# SAVE UPDATED FORM VALUES TO CSV
+        save_back_to_csv()
+
         st.download_button(
             label="Download Notice of Completion PDF",
             data=pdf_buffer,
